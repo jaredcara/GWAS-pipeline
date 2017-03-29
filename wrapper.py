@@ -2,6 +2,8 @@
 
 import os                           #imports os module to allow the code to use the command line
 import argparse                     #imports the argparse module which accepts input from the command line to use in the running of the code
+import matplotlib.pyplot as plt
+import pandas as pd
 
 parser = argparse.ArgumentParser()  #creates the parser list for argparse
 #parser.add_argument("test", help="simply a test") #testing argument
@@ -64,6 +66,19 @@ os.system("plink --bfile testdata --exclude out/step1/exclude.txt --geno 0.01 --
 os.system("mkdir out/step2/step2_2")
 os.system("plink --bfile out/step2/step2_0/step2_0 --missing --out out/step2/step2_2/step2_2")
 
+### STEP 2 -PLOTTING###
+x = "out/step2/step2_2" #insert file name here
+ftype = ".imiss" #insert file type here
+
+data = pd.read_table(x + ftype, sep= r'\s*') #use panda to read in the data from specified file
+
+plt.figure() #create a new figure
+plt.hist(data["F_MISS"], bins = 100) #add a histogram to the figure
+plt.xlabel("F_MISS") #add the x label
+plt.ylabel("Frequency") #add the y label
+plt.title("F_MISS Frequncy Histogram") #add the title
+plt.savefig(x + '_histogram.png') #save the file to specified file name as a .png
+
 ### STEP 3 - Person Call Rate ###
 
 #make directory for person call rate check output
@@ -80,3 +95,9 @@ os.system("mkdir out/step4")
 #write hardy-weinberg test to step4
 #where SNPs with p < 1e-6 are excluded
 os.system("plink --bfile out/step2/step2_0/step2_0 --hwe 1e-6 --make-bed -out out/step4/step4")
+
+### STEP 5 - LD prune for relationship check & heterozygosity calculation ###
+
+### STEP 6 - Relationship check ###
+
+### STEP 7 - Heterozygosity check ###
