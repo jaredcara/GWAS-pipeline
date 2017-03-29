@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 21 19:31:53 2017
-
-@author: Alexa
-"""
 
 import os
 
