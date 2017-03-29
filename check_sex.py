@@ -1,16 +1,16 @@
 import os
 
 #make directory step1 for output
-os.system("mkdir /home/jcara/testing/out")
-os.system("mkdir /home/jcara/testing/out/step1")
+os.system("mkdir out")
+os.system("mkdir out/step1")
 #runs a check sex on data, sends output to step1/step1
-os.system("plink --bfile /home/jcara/testing/testdata/testdata --check-sex -out /home/jcara/testing/out/step1/step1")
+os.system("plink --bfile testdata --check-sex -out out/step1/step1")
 #finds 'PROBLEM' in output
 #this is where the check sex found an issue
-os.system("grep 'PROBLEM' /home/jcara/testing/out/step1/step1.sexcheck > /home/jcara/testing/out/step1/issues.txt")
+os.system("grep 'PROBLEM' out/step1/step1.sexcheck > out/step1/issues.txt")
 
 #open issues
-f = open('/home/jcara/testing/out/step1/issues.txt', 'r')
+f = open('out/step1/issues.txt', 'r')
 s = f.readlines()
 f.close()
 
@@ -22,7 +22,7 @@ for each in s:
 	
 	
 #write to testdata/exclude.txt, to be used for down pipe commands	
-o = open('/home/jcara/testing/testdata/exclude.txt', 'w')
+o = open('out/step1/exclude.txt', 'w')
 for each in exclude:
 	o.write(each)
 	o.write('\n')
