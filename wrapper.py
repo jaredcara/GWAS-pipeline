@@ -11,7 +11,7 @@ args = parser.parse_args()          #creates the list of aruments called args
 
 ###STEP 1 - Sex Check#####
 
-#make directory step1 for output
+#make directory step1 for outputs
 os.system("mkdir out")
 os.system("mkdir out/step1")
 #runs a check sex on data, sends output to step1/step1
