@@ -64,7 +64,7 @@ os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt 
 #writes data to step2/step2_0/step2_0
 
 os.system("mkdir " + fil + "out/step2/step2_0")
-os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt --geno 0.01 --make-bed --out " + fil + " out/step2/step2_0/step2_0")
+os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt --geno 0.01 --make-bed --out " + fil + "out/step2/step2_0/step2_0")
 
 ##Creates two files: .imiss (individual) and .lmiss (SNP/locus) that details missingness in data
 #writes data to step2/step2_2/step2_2
