@@ -92,7 +92,7 @@ plt.savefig(x + '_histogram.png') #save the file to specified file name as a .pn
 os.system("mkdir " + fil + "out/step3")
 #person call rate with standard 0.1 threshold
 #write output to step5/step5
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-bed --out " + fil + " out/step3/step3")
+os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-bed --out " + fil + "out/step3/step3")
 
 ### STEP 4 - Hardy Weinberg ###
 
@@ -101,7 +101,8 @@ os.system("mkdir " + fil + "out/step4")
 
 #write hardy-weinberg test to step4
 #where SNPs with p < 1e-6 are excluded
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --hwe 1e-6 --make-bed --out " + fil + " out/step4/step4")
+os.system("plink --bfile " + fil + "out/step3/step3 --hwe 1e-6 --make-bed --out " + fil + "out/step4/step4")
+os.system("plink --bfile " + fil + "out/step4/step4 --hardy --out " + fil + "out/step4/step4"
 
 ### STEP 5 - LD prune for relationship check & heterozygosity calculation ###
 #Step 5: LD pruning
