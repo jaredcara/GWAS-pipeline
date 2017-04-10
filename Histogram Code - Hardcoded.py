@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[36]:
-
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -17,9 +12,3 @@ plt.xlabel("F_MISS") #add the x label
 plt.ylabel("Frequency") #add the y label
 plt.title("F_MISS Frequncy Histogram") #add the title
 plt.savefig(x + '_histogram.png') #save the file to specified file name as a .png
-
-
-# In[ ]:
-
-
-
