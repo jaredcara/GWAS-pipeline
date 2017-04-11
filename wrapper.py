@@ -98,8 +98,8 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-
 
 #make directory for hardy-weinberg output
 os.system("mkdir " + fil + "out/step4")
-os.system("mkidr " + fil + "out/step4/step4_0")
-os.system("mkidr " + fil + "out/step4/step4_1")
+os.system("mkdir " + fil + "out/step4/step4_0")
+os.system("mkdir " + fil + "out/step4/step4_1")
 
 #write hardy-weinberg test to step4
 #where SNPs with p < 1e-6 are excluded
@@ -109,8 +109,9 @@ os.system("plink --bfile " + fil + "out/step4/step4 --hardy --out " + fil + "out
 ### STEP 5 - LD prune for relationship check & heterozygosity calculation ###
 #Step 5: LD pruning
 """
-os.system("mkidr " + fil + "out/step5")
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_0")
+os.system("mkdir " + fil + "out/step5")
+os.system("mkdir " + fil + "out/step5/step5_1")
+os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
 
 
 #bfile:change to .bed file from previous steps 3 and 4  
@@ -130,8 +131,8 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 5
 
 
 #Step 6: Relationship and IBD check
-
- 
+os.system("mkdir " + fil + "out/step6")
+os.system("mkdir " + fil + "out/step6/step6_1") 
 
 #Plot IBD here
 
@@ -143,7 +144,7 @@ min_relatedness = 0
 
 #filter related 
 
-os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --genome --min " + min_relatedness + " --out " + ofile)
+os.system("plink --bfile" + fil + "out/step2/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + min_relatedness + " --out " + fil + "out/step6/step6_1/step6_1")
 
 #bfile: files from previous steps 3, 4, 5
 
@@ -156,6 +157,17 @@ os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --genome 
 #output: .genome file
 
 
+#Step 7: Heterozygosity check
+os.system("mkdir " + fil + "out/step7")
+os.system("mkdir " + fil + "out/step7/step7_1")
+os.system("mkdir " + fil + "out/step7/step7_2")
+os.system("mkdir " + fil + "out/step7/step7_3")
+os.system("mkdir " + fil + "out/step7/step7_4")
+os.system("mkdir " + fil + "out/step7/step7_5")
+os.system("mkdir " + fil + "out/step7/step7_6")
+
+os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fil + "out/step7/step7_1/step7_1")
+#output .het file of inbreeding coefficients for plotting
 
 
 
@@ -167,7 +179,7 @@ os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --genome 
 
 #rerun relationship check with duplicates excluded
 
-os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --remove exclusionlist.txt --genome --min " + min_relatedness + " --out ...duplicates")
+#os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove exclusionlist.txt --genome --min " + min_relatedness + " --out " + fil + "out/step7/step7_2/step7_2")
 
 
 
@@ -175,17 +187,18 @@ os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --remove 
 
 #write code to create txt file of those
 
-#os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --remove extractedfilesremoved.txt --genome --out ...extractedfilesremovedagain")
+#os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --genome --out " + fil + "out/step7/step7_3/step7_3")
+
+ 
+os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --make-bed --out "out/step7/step7_4/step_4")
+#makes bed, bim, fam files from extracted files
 
 
+os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --out " + fil + "out/step7/step7_5/step7_5")
+#Checks heterozygosity for individuals with <0.25 relatedness
 
 
-
-#Step 7: Heterozygosity check 
-
-
-
-#Plot here
+#Plot Het here
 
 
 
@@ -193,8 +206,8 @@ os.system("plink --bfile" + bfile + " --extract " + ofile + ".prune.in --remove 
 
 #filter any outliers from plot, mean sd +/-3
 
-os.system("plink --bfile" + bfile + " --het --extract " + ofile + ".prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
-
+os.system("plink --bfile" + fil + " --het --extract " + ofile + ".prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
+os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --remove " + fil + "out/step7/step7_5/step7_5.txt --make-bed --out " + fil + "out/step7/step7_6/step7_6")
 
 
 #calculates inbreeding coeffecients 
