@@ -201,37 +201,55 @@ os.system("plink --bfile" + bfile + " --het --extract " + ofile + ".prune.in --r
 
 
 
-chr = 0
 
 #Step 8:PCA prep and pca
 
-os.system("plink --bfile pop_HM3_hg19_forPCA --chr " + chr + " --make-bed --out ...chr")
+os.system("mkdir " + fil + "out/step8")
+os.system("mkdir " + fil + "out/step8/step8_1")
+os.system("mkdir " + fil + "out/step8/step8_2")
+os.system("mkdir " + fil + "out/step8/step8_3")
+os.system("mkdir " + fil + "out/step8/step8_4")
 
-os.system("cut -f 2 ...chr > chrlist")
+#step 8a:
+os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step8/step8_1/step8_1")
+#plink --bfile testdataout/step2/step2_0 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step/step8_1/step8_1
+#merge QC bfile from previous step 5f with hg19 bed, bim, fam files
+#makes -merge.missnp file
 
+#step 8b:
+os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --make-bed --out " + fil + "out/step8/step8_1/step8_1")
+#merge again excluding missing SNPs
+#out makes bed, bim, fam files
 
+#step 8c:
+os.system("plink --bfile " + fil + "out/step8/step8_1/step8_1 --bmerge " + fil + "out/step8/step8_1/step8_1.bed " + fil + "out/step8/step8_1/step8_1.bim " + fil + "out/step8/step8_1/step8_1.fam --make-bed --out " + fil + "out/step8/step8_2/step8_2")
+#merge again
+#out makes bed, bim, fam files 
 
-os.system("plink --bfile " + bfile + " --remove ...hetoutlierlist.txt --exclude chrlist --make-bed --out pop_HM3_hg19_forPCA")
+#step 8d:
+os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2 --geno 0.2 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+#keeps SNPs of merged file to genotypes above 90%
+#out bed, bim, fam files
 
-os.system("module load eigensoft/5.0.1 ")
+#step 8e:
+os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_4/step8_4")
+#makes .map and .ped files for smartpca 
+#makes ..step6e.prune.in and prune.out files 
 
+#step 8f:
+os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_3/step8_3.fam > " + fil + "out/step8/step8_4/step8_4.fam")
+#extracts columns from 6d fam file to 6e
 
+#step 8g:
+#create parfile for smartpca
 
-bed = ""
+os.system("python create_par_file.py " + fil + "out/step8/step8_4/step8_4 0 > " + fil + "out/step8/step8_4/step8_4.par")
 
-bim = ""
+#os.system("module load eigensoft/5.0.1")
 
-fam = ""
+#step 8h:
+os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
 
-
-
-os.system("plink --bfile pop_HM3_hg19_forPCA --bmerge " + bed + " " + bim + " " + fam + " --make-bed --out ...")
-
-#merge qc files with HAPMAP files
-
-#use bfile from previous step, --bmerge bim, fam, bed files from wheelerlab2 folders
-
-##then --make-bed, --idepen-pairwise and --recode, if necessary awk, then make par, then smartpca -p file.par
 ### STEP 6 - Relationship check ###
 
 ### STEP 7 - Heterozygosity check ###
