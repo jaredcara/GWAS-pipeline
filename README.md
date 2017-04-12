@@ -4,7 +4,7 @@ To run the program, enter "python wrapper.py fle_location
 
 Out info  
 ---Step1: Sex Check QC---  
----Step2: SNP call rate---
+---Step2: SNP call rate---  
 Step2_0: filters SNPS with <99% call rate QC  
 Step2_1: unfiltered SNP call rate graph data  
 Step2_2: filtered SNP call rate graph data  
@@ -15,7 +15,7 @@ Step3_2: filtered person call rate graph data
 ---Step4: Hardy-Weinberg---
 Step4_0: Hardy-Weinberg QC  
 Step4_1: Hardy-Weinberg stats  
-Step5_1:   
+Step5_1:  
 Step6_1:  
 Step7_1:  
 Step7_2:  
