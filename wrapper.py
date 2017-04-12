@@ -112,7 +112,7 @@ os.system("plink --bfile " + fil + "out/step4/step4 --hardy --out " + fil + "out
 os.system("mkdir " + fil + "out/step5")
 os.system("mkdir " + fil + "out/step5/step5_1")
 
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
 #indep-pairwise:window size in SNPs, the number of SNPs to to shift the window at each step, VIF threshold (could be 0.2 or 0.3)
 #output is 2 files of pruned SNPs: .prune.in and .prune.out 
 
@@ -138,7 +138,7 @@ os.system("mkdir " + fil + "out/step6/step6_1")
 min_relatedness = 0.25
 
 #filter related 
-os.system("plink --bfile " + fil + "out/step2/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + min_relatedness + " --out " + fil + "out/step6/step6_1/step6_1")
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + str(min_relatedness) + " --out " + fil + "out/step6/step6_1/step6_1")
 #extract LD prune.in file
 #min: exclude pairs that share more than 25% of genome, PI HAT pairs greater than 0.25 if highly related (relatedness of full siblings and more related), if not want to use value of 0.05 
 #out: extracts SNPs to .genome out file
@@ -155,7 +155,7 @@ os.system("mkdir " + fil + "out/step7/step7_4")
 os.system("mkdir " + fil + "out/step7/step7_5")
 os.system("mkdir " + fil + "out/step7/step7_6")
 
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fil + "out/step7/step7_1/step7_1")
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --het --out " + fil + "out/step7/step7_1/step7_1")
 #output .het file of inbreeding coefficients for plotting and .hh file
 
 
@@ -174,10 +174,10 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fi
 
 #write code to create txt file of those
 
-#os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --genome --out " + fil + "out/step7/step7_3/step7_3")
+#os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --genome --out " + fil + "out/step7/step7_3/step7_3")
 
  
-os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --make-bed --out "out/step7/step7_4/step_4")
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --make-bed --out  " + fil + "out/step7/step7_4/step7_4")
 #makes bed, bim, fam files from extracted files
 #removes people with min_relatedness from step7_1
 
@@ -193,7 +193,7 @@ os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --out " + fi
 
 
 #filter any outliers from plot, mean sd +/-3
-os.system("plink --bfile" + fil + " --het --extract " + ofile + ".prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
+os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
 os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --remove " + fil + "out/step7/step7_5/step7_5.txt --make-bed --out " + fil + "out/step7/step7_6/step7_6")
 #calculates inbreeding coeffecients 
 
@@ -248,4 +248,3 @@ os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
 ### STEP 6 - Relationship check ###
 
 ### STEP 7 - Heterozygosity check ###
-"""
