@@ -108,18 +108,12 @@ os.system("plink --bfile " + fil + "out/step4/step4 --hardy --out " + fil + "out
 
 ### STEP 5 - LD prune for relationship check & heterozygosity calculation ###
 #Step 5: LD pruning
-"""
+
 os.system("mkdir " + fil + "out/step5")
 os.system("mkdir " + fil + "out/step5/step5_1")
+
 os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
-
-
-#bfile:change to .bed file from previous steps 3 and 4  
-
 #indep-pairwise:window size in SNPs, the number of SNPs to to shift the window at each step, VIF threshold (could be 0.2 or 0.3)
-
-#--outfile is same file as bfile for simplicity, or new name for testing purposes
-
 #output is 2 files of pruned SNPs: .prune.in and .prune.out 
 
 
@@ -128,33 +122,28 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --indep-pairwise 5
 
 
 
-
-
 #Step 6: Relationship and IBD check
 os.system("mkdir " + fil + "out/step6")
 os.system("mkdir " + fil + "out/step6/step6_1") 
 
+
 #Plot IBD here
 
-#determine min relatedness value to be used
+
+
+#determine min relatedness value to be used from plot
 
 
 
-min_relatedness = 0
+min_relatedness = 0.25
 
 #filter related 
-
-os.system("plink --bfile" + fil + "out/step2/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + min_relatedness + " --out " + fil + "out/step6/step6_1/step6_1")
-
-#bfile: files from previous steps 3, 4, 5
-
+os.system("plink --bfile " + fil + "out/step2/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + min_relatedness + " --out " + fil + "out/step6/step6_1/step6_1")
 #extract LD prune.in file
-
 #min: exclude pairs that share more than 25% of genome, PI HAT pairs greater than 0.25 if highly related (relatedness of full siblings and more related), if not want to use value of 0.05 
-
 #out: extracts SNPs to .genome out file
-
 #output: .genome file
+#create a list of individuals to remove due to relatedness
 
 
 #Step 7: Heterozygosity check
@@ -167,7 +156,7 @@ os.system("mkdir " + fil + "out/step7/step7_5")
 os.system("mkdir " + fil + "out/step7/step7_6")
 
 os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fil + "out/step7/step7_1/step7_1")
-#output .het file of inbreeding coefficients for plotting
+#output .het file of inbreeding coefficients for plotting and .hh file
 
 
 
@@ -176,9 +165,7 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fi
 
 
 
-
 #rerun relationship check with duplicates excluded
-
 #os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove exclusionlist.txt --genome --min " + min_relatedness + " --out " + fil + "out/step7/step7_2/step7_2")
 
 
@@ -192,27 +179,23 @@ os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --het --out " + fi
  
 os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --make-bed --out "out/step7/step7_4/step_4")
 #makes bed, bim, fam files from extracted files
+#removes people with min_relatedness from step7_1
 
 
 os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --out " + fil + "out/step7/step7_5/step7_5")
 #Checks heterozygosity for individuals with <0.25 relatedness
 
 
+	  
 #Plot Het here
 
 
 
 
-
 #filter any outliers from plot, mean sd +/-3
-
 os.system("plink --bfile" + fil + " --het --extract " + ofile + ".prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
 os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --remove " + fil + "out/step7/step7_5/step7_5.txt --make-bed --out " + fil + "out/step7/step7_6/step7_6")
-
-
 #calculates inbreeding coeffecients 
-
-
 
 
 #Step 8:PCA prep and pca
@@ -255,7 +238,6 @@ os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_3/step8_3.f
 
 #step 8g:
 #create parfile for smartpca
-
 os.system("python create_par_file.py " + fil + "out/step8/step8_4/step8_4 0 > " + fil + "out/step8/step8_4/step8_4.par")
 
 #os.system("module load eigensoft/5.0.1")
