@@ -15,14 +15,18 @@ Step3_2: filtered person call rate graph data
 ---Step4: Hardy-Weinberg---
 Step4_0: Hardy-Weinberg QC  
 Step4_1: Hardy-Weinberg stats  
+---Step5: ---  
 Step5_1:  
+---Step6: ---  
 Step6_1:  
+---Step7: ---  
 Step7_1:  
 Step7_2:  
 Step7_3:  
 Step7_4:  
 Step7_5:  
 Step7_6:  
+---Step8: ---  
 Step8_1:  
 Step8_2:  
 Step8_3:  
