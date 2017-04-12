@@ -2,7 +2,7 @@
 GWAS pipeline requires .bed, .bim, and .fam files.   
 To run the program, enter "python wrapper.py fle_location
 
-Out info
+Out info  
 ---Step1: Sex Check QC---  
 ---Step2: SNP call rate---
 Step2_0: filters SNPS with <99% call rate QC  
