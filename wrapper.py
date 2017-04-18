@@ -111,6 +111,7 @@ os.system("plink --bfile " + fil + "out/step4/step4 --hardy --out " + fil + "out
 
 os.system("mkdir " + fil + "out/step5")
 os.system("mkdir " + fil + "out/step5/step5_1")
+os.system("mkdir " + fil + "out/step5/step5_2")
 
 os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
 #indep-pairwise:window size in SNPs, the number of SNPs to to shift the window at each step, VIF threshold (could be 0.2 or 0.3)
@@ -119,12 +120,13 @@ os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --indep-pairwise 5
 
 
 #heterzygosity calculation
-
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --het --out " + fil + "out/step5/step5_2/step5_2")
 
 
 #Step 6: Relationship and IBD check
 os.system("mkdir " + fil + "out/step6")
-os.system("mkdir " + fil + "out/step6/step6_1") 
+os.system("mkdir " + fil + "out/step6/step6_1")
+os.system("mkdir " + fil + "out/step6/step6_2")
 
 
 #Plot IBD here
@@ -152,6 +154,7 @@ f.close()
 #creates a list of individuals to remove due to relatedness
 #in each line, return the family id, sample id, and pi-hat value
 relatedness = 0.1875
+#values above 0.1875 should be removed according to https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3025522/
 related = []
 for each in r:
     value = each.split()
@@ -167,50 +170,24 @@ for each in related:
 	each.write('\n')
 w.close()
 
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove " + fil + "out/step6/step6_1/relatedtoremove.txt --make-bed --out  " + fil + "out/step6/step6_2/step6_2")
+#makes new bed, bim, fam files from extracted files above the relatedness threshold
+
 #Step 7: Heterozygosity check
 os.system("mkdir " + fil + "out/step7")
 os.system("mkdir " + fil + "out/step7/step7_1")
 os.system("mkdir " + fil + "out/step7/step7_2")
-os.system("mkdir " + fil + "out/step7/step7_3")
-os.system("mkdir " + fil + "out/step7/step7_4")
-os.system("mkdir " + fil + "out/step7/step7_5")
-os.system("mkdir " + fil + "out/step7/step7_6")
 
-os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --het --out " + fil + "out/step7/step7_1/step7_1")
+
+#Heterzygosity check of file after extracting individuals with relatedness above the theshold 
+os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --het --out " + fil + "out/step7/step7_1/step7_1")
 #output .het file of inbreeding coefficients for plotting and .hh file
-
-
-
-#write code to check for duplicates and hapmap relationships, extract hapmap exclusions from plot from ofile and make exclusion list 
-
-
-
-
-#rerun relationship check with duplicates excluded
-#os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove exclusionlist.txt --genome --min " + min_relatedness + " --out " + fil + "out/step7/step7_2/step7_2")
-
-
-#os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --genome --out " + fil + "out/step7/step7_3/step7_3")
-
- 
-os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove " + fil + "out/step6/step6_1/relatedtoremove.txt --make-bed --out  " + fil + "out/step7/step7_4/step7_4")
-#makes bed, bim, fam files from extracted files above the threshold
-#removes people with min_relatedness from step7_1
-
-
-os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --out " + fil + "out/step7/step7_5/step7_5")
-#Checks heterozygosity for individuals with <= relatedness
-
-
 	  
 #Plot Het here
 
 
-
-
 #filter any outliers from plot, mean sd +/-3
-os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --out ...extractedfilesremovedagain")
-os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --remove " + fil + "out/step7/step7_5/step7_5.txt --make-bed --out " + fil + "out/step7/step7_6/step7_6")
+os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/step7_1 --make-bed --out " + fil + "out/step7/step7_2/step7_2")
 #calculates inbreeding coeffecients 
 
 
