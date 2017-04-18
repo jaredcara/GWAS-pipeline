@@ -134,17 +134,38 @@ os.system("mkdir " + fil + "out/step6/step6_1")
 #determine min relatedness value to be used from plot
 
 
-
-min_relatedness = 0.25
+min_relatedness = raw_input("Enter value of minimum relatedness: \n Identical-twins\t 1\n Parent-child\t\t 0.5\n Full siblings\t\t 0.5\n Half-siblings\t\t 0.25\n Grandparent-grandchild\t 0.25\n Avuncular\t\t 0.25\n Half avuncular\t\t 0.125\n First-cousin\t\t 0.25\n Half-first-cousin\t 0.0625\n Half-sibling-plus-first-cousin\t 0.375\n")
+#prompts user for min relatedness value
 
 #filter related 
-os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + str(min_relatedness) + " --out " + fil + "out/step6/step6_1/step6_1")
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + min_relatedness + " --out " + fil + "out/step6/step6_1/step6_1")
 #extract LD prune.in file
 #min: exclude pairs that share more than 25% of genome, PI HAT pairs greater than 0.25 if highly related (relatedness of full siblings and more related), if not want to use value of 0.05 
 #out: extracts SNPs to .genome out file
 #output: .genome file
-#create a list of individuals to remove due to relatedness
 
+#reads genome file
+f = open(fil + "out/step6/step6_1/step6_1.genome", 'r')
+r = f.readlines()
+f.close()
+
+#creates a list of individuals to remove due to relatedness
+#in each line, return the family id, sample id, and pi-hat value
+relatedness = 0.1875
+related = []
+for each in r:
+    value = each.split()
+    if value[0].isdigit() == True and float(value[9]) >= relatedness:
+        related.append(value[0]+'\t'+value[1]+'\t'+value[9])
+    else:
+        continue
+	
+#if the the pi-hat value is above the related threshold write values to relatedtoremove.txt	
+w = open(fil + "out/step6/step6_1/relatedtoremove.txt", 'w')
+for each in related:
+	each.write(i)
+	each.write('\n')
+w.close()
 
 #Step 7: Heterozygosity check
 os.system("mkdir " + fil + "out/step7")
@@ -169,21 +190,16 @@ os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --het --out " + fi
 #os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove exclusionlist.txt --genome --min " + min_relatedness + " --out " + fil + "out/step7/step7_2/step7_2")
 
 
-
-#if any phi-hat values are above the min_relatedness value in .genome file remove them
-
-#write code to create txt file of those
-
 #os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --genome --out " + fil + "out/step7/step7_3/step7_3")
 
  
-os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove extractedfilesremoved.txt --make-bed --out  " + fil + "out/step7/step7_4/step7_4")
-#makes bed, bim, fam files from extracted files
+os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove " + fil + "out/step6/step6_1/relatedtoremove.txt --make-bed --out  " + fil + "out/step7/step7_4/step7_4")
+#makes bed, bim, fam files from extracted files above the threshold
 #removes people with min_relatedness from step7_1
 
 
 os.system("plink --bfile " + fil + "out/step7/step7_4/step7_4 --het --out " + fil + "out/step7/step7_5/step7_5")
-#Checks heterozygosity for individuals with <0.25 relatedness
+#Checks heterozygosity for individuals with <= relatedness
 
 
 	  
