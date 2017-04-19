@@ -153,12 +153,10 @@ f.close()
 
 #creates a list of individuals to remove due to relatedness
 #in each line, return the family id, sample id, and pi-hat value
-relatedness = 0.1875
-#values above 0.1875 should be removed according to https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3025522/
 related = []
 for each in r:
     value = each.split()
-    if value[0].isdigit() == True and float(value[9]) >= relatedness:
+    if value[0].isdigit() == True and float(value[9]) >= float(min_relatedness):
         related.append(value[0]+'\t'+value[1]+'\t'+value[9])
     else:
         continue
