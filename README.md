@@ -16,18 +16,16 @@ Step3_2: filtered person call rate graph data
 Step4_0: Hardy-Weinberg QC  
 Step4_1: Hardy-Weinberg stats  
 ---Step5: ---  
-Step5_1:  
+Step5_1: Prune.in: filtered SNPs below r^2 theshold of 0.2, prune.out: filterted SNPs above threshold    
+Step5_2: Heterozygosity check   
 ---Step6: ---  
-Step6_1:  
+Step6_1: Generates pairwise IBS  
+Step6_2: Filters related individuals  
 ---Step7: ---  
-Step7_1:  
-Step7_2:  
-Step7_3:  
-Step7_4:  
-Step7_5:  
-Step7_6:  
+Step7_1: Heterozygosity check      
+Step7_2: Filters outliers      
 ---Step8: ---  
-Step8_1:  
-Step8_2:  
-Step8_3:  
-Step8_4:  
+Step8_1: Generates missing SNPs from HAPMAP and QC files to be merged, filters SNPs that are missing     
+Step8_2: filters SNPs that are missing   
+Step8_3: merged genotypes  
+Step8_4: filtered SNPs for pca 
