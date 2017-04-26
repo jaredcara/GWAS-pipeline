@@ -279,7 +279,7 @@ def step8(fil):
     	
 	
 	#step 8d:
-	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --geno 0.2 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_6/step8_6")
+	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_6/step8_6")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 
@@ -330,4 +330,4 @@ step4(fil)
 step5(fil)
 step6(fil)
 step7(fil)
-step8(fil)
+#step8(fil)
