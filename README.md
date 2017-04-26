@@ -1,6 +1,6 @@
 # GWAS-pipeline
 GWAS pipeline requires .bed, .bim, and .fam files.   
-To run the program, enter "python wrapper.py fle_location
+To run the program, enter "python wrapper.py file_location
 
 Out info  
 ---Step1: Sex Check QC---  
