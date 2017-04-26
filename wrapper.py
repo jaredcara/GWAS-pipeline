@@ -237,39 +237,69 @@ def step8(fil):
 	#makes -merge.missnp file
 
 	#step 8b:
-	os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --make-bed --out " + fil + "out/step8/step8_1/step8_1")
+	os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --make-bed --out " + fil + "out/step8/step8_2/step8_2")
 	#merge again excluding missing SNPs
 	#out makes bed, bim, fam files
 
 	#step 8c:
-	os.system("plink --bfile " + fil + "out/step8/step8_1/step8_1 --bmerge " + fil + "out/step8/step8_1/step8_1.bed " + fil + "out/step8/step8_1/step8_1.bim " + fil + "out/step8/step8_1/step8_1.fam --make-bed --out " + fil + "out/step8/step8_2/step8_2")
+	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --bmerge " + fil + "out/step8/step8_2/step8_2.bed " + fil + "out/step8/step8_2/step8_2.bim " + fil + "out/step8/step8_2/step8_2.fam --make-bed --out " + fil + "out/step8/step8_3/step8_3")
 	#merge again
 	#out makes bed, bim, fam files 
 
+	#grep Warning snps 
+    	os.system("grep 'Warning:' " + fil + "out/step8/step8_3/step8_3.log > " + fil + "out/step8/step8_3/duplicateSNPs.txt")
+    	#merge again
+    	#only save input in quotes, then remove them
+    	f = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'r')
+    	r = f.readlines()
+    	f.close()
+    
+    	#in each line only return the duplicate SNP name
+    	#remove both or just one?
+    	duplicates = []
+    	for each in r:
+        	each = each.replace("'", "")
+        	snp = each.split()
+        	duplicates.append(snp[2]+'\t'+snp[4])
+                
+        
+    	#write to testdata/exclude.txt, to be used for down pipe commands    
+    	w = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'w')
+    	for each in duplicates:
+        	w.write(each)
+        	w.write('\n')
+    	w.close()
+    
+    	#merge again without duplicates
+    	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --make-bed --out " + fil + "out/step8/step8_4/step8_4")
+    
+    	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --bmerge " + fil + "out/step8/step8_4/step8_4.bed " + fil + "out/step8/step8_4/step8_4.bim " + fil + "out/step8/step8_4/step8_4.fam --make-bed --out " + fil + "out/step8/step8_5/step8_5")
+    	
+	
 	#step 8d:
-	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2 --geno 0.2 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --geno 0.2 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_6/step8_6")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 
 	#step 8e:
-	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_4/step8_4")
+	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_6/step8_6")
 	#makes .map and .ped files for smartpca 
 	#makes ..step6e.prune.in and prune.out files 
 
 	#step 8f:
-	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_3/step8_3.fam > " + fil + "out/step8/step8_4/step8_4.fam")
+	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_5/step8_5.fam > " + fil + "out/step8/step8_6/step8_6.fam")
 	#extracts columns from 6d fam file to 6e
 
 	#step 8g:
 	#create parfile for smartpca
 	
-	o = open(str(fil) + "out/step8/step8_4/step8_4.par", 'w')
-	o.write("genotypename: " + str(fil) + "out/step8/step8_4/step8_4.ped\n")
-	o.write("snpname: " + str(fil) + "out/step8/step8_4/step8_4.map\n")
-	o.write("indivname: " + str(fil) + "out/step8/step8_4/step8_4.fam\n")
-	o.write("evecoutname: " + str(fil) + "out/step8/step8_4/step8_4.evec\n")
-	o.write("evaloutname: " +  str(fil) + "out/step8/step8_4/step8_4.eval\n")
-	o.write("outliername: " +  str(fil) + "out/step8/step8_4/step8_4.outlier\n")
+	o = open(str(fil) + "out/step8/step8_6/step8_6.par", 'w')
+	o.write("genotypename: " + str(fil) + "out/step8/step8_6/step8_6.ped\n")
+	o.write("snpname: " + str(fil) + "out/step8/step8_6/step8_6.map\n")
+	o.write("indivname: " + str(fil) + "out/step8/step8_6/step8_6.fam\n")
+	o.write("evecoutname: " + str(fil) + "out/step8/step8_6/step8_6.evec\n")
+	o.write("evaloutname: " +  str(fil) + "out/step8/step8_6/step8_6.eval\n")
+	o.write("outliername: " +  str(fil) + "out/step8/step8_6/step8_6.outlier\n")
 	o.write("numoutevec: 10\n")
 	o.write("numoutlieriter: 0\n")
 	o.write("numoutlierevec: 2\n")
@@ -279,7 +309,7 @@ def step8(fil):
 	#os.system("module load eigensoft/5.0.1")
 
 	#step 8h:
-	os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
+	os.system("smartpca -p " + fil + "out/step8/step8_6/step8_6.par")
 
 	
 	
