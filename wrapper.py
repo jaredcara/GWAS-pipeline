@@ -42,8 +42,8 @@ def HETplot(out, name, var):
 	plt.ylabel("Frequency") #add the y label
 	plt.title(str(var) + " Frequncy Histogram") #add the title
 	
-	mean = data["F_MISS"].mean()
-	std = data["F_MISS"].std()
+	mean = data["F"].mean()
+	std = data["F"].std()
 	
 	plt.axvline(x = mean + std * sdn, color = 'r')
 	plt.axvline(x = mean - std * sdn, color = 'r')
@@ -298,4 +298,4 @@ step4(fil)
 step5(fil)
 step6(fil)
 step7(fil)
-#step8(fil)
+step8(fil)
