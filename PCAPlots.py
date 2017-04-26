@@ -67,6 +67,7 @@ plt.savefig("PCA3.png", bbox_inches = 'tight')
 xvals = []
 yvals = []
 plt.figure() #this code is the similar to above except it adds lines 5 std dev away from selected point
+for row in PCA.itertuples():
     if row[14] == "ASN":
         A = plt.scatter(row[2], row[3], c = 'r')
     elif row[14] == "CEU":
@@ -74,7 +75,7 @@ plt.figure() #this code is the similar to above except it adds lines 5 std dev a
     elif row[14] == "YRI":
         Y = plt.scatter(row[2], row[3], c = 'm')
         xvals.append(row[2]) #used to add bars to PCA plot
-        yvals.append(row[3]) #move these two lines under desired population for bars
+        yvals.append(row[3]) #move these two lines under desired population for bars be sure to change the x and y for where the values are coming from
     else:
         G = plt.scatter(row[2], row[3], c = 'g')
 xmean = sum(xvals)/float(len(xvals)) #calculate the mean
