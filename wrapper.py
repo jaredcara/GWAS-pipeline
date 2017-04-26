@@ -9,18 +9,47 @@ import pandas as pd
 import sys
 
 
-def plot(name, type):
-	x = name #insert file name here
-	ftype = ".imiss" #insert file type here
-
-	data = pd.read_table(x + ftype, sep= r'\s*') #use panda to read in the data from specified file
-
-	plt.hist(data["F_MISS"], bins = 100) #add a histogram to the figure
-	plt.xlabel("F_MISS") #add the x label
+def plot(out, name, type, var):
+	data = pd.read_table(name + type, sep= r'\s*', engine = "python") #use panda to read in the data from specified file
+	
+	plt.figure()
+	plt.hist(data[var], bins = 100) #add a histogram to the figure
+	plt.xlabel(str(var)) #add the x label
 	plt.ylabel("Frequency") #add the y label
-	plt.title("F_MISS Frequncy Histogram") #add the title
-	plt.savefig(name + "_test_histogram.png") #save the file to specified file name as a .png
+	plt.title(str(var) + " Frequncy Histogram") #add the title
+	plt.savefig(str(out) + ".png") #save the file to specified file name as a .png
 
+	
+def IBDplot(out, name):
+	data = pd.read_table(name, sep = r'\s*', engine = "python")
+
+	plt.figure()
+	plt.scatter(data["Z0"], data["Z1"])
+	plt.xlabel("Z0")
+	plt.ylabel("Z1")
+	plt.title("Check Identity by Descent (IBD)")
+	plt.savefig(str(out) + ".png") #save the file to specified file name as a .png
+
+	
+def HETplot(out, name, var):
+	data = pd.read_table(name, sep= r'\s*', engine = "python") #use panda to read in the data from specified file
+	
+	sdn = 6 #This tells you how many SDs to plot the line away from change to personal preference
+	
+	plt.figure()
+	plt.hist(data[var], bins = 100) #add a histogram to the figure
+	plt.xlabel(str(var)) #add the x label
+	plt.ylabel("Frequency") #add the y label
+	plt.title(str(var) + " Frequncy Histogram") #add the title
+	
+	mean = data["F_MISS"].mean()
+	std = data["F_MISS"].std()
+	
+	plt.axvline(x = mean + std * sdn, color = 'r')
+	plt.axvline(x = mean - std * sdn, color = 'r')
+	
+	plt.savefig(str(out)) #save the file to specified file name as a .png
+		
 	
 ### Step1: Sex Check ###
 def step1(fil):
@@ -61,10 +90,11 @@ def step2(fil):
 	#excludes data from the sex_check
 	#writes data to step2/step2_1/step2_1
 
+	os.system("mkdir " + fil + "out/histograms")
 	os.system("mkdir " + fil + "out/step2")
 	os.system("mkdir " + fil + "out/step2/step2_1")
 	os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt --missing --out " + fil + "out/step2/step2_1/step2_1")
-
+	
 	#recalculates call rate after removing SNPs with call rates <99% and creates a new set of files
 	#excudes data from the sex_check
 	#writes data to step2/step2_0/step2_0
@@ -78,7 +108,9 @@ def step2(fil):
 	os.system("mkdir " + fil + "out/step2/step2_2")
 	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --missing --out " + fil + "out/step2/step2_2/step2_2")
 	
-	#plot(fil + "out/step2/step2_2/step2_2", ".imiss")
+	plot(fil + "out/histograms/step2_1-imiss", fil + "out/step2/step2_1/step2_1", ".imiss", "F_MISS")
+	plot(fil + "out/histograms/step2_2-imiss", fil + "out/step2/step2_2/step2_2", ".imiss", "F_MISS")
+	plot(fil + "out/histograms/step2_2-lmiss", fil + "out/step2/step2_2/step2_2", ".lmiss", "F_MISS")
 	
 
 	
@@ -86,9 +118,18 @@ def step2(fil):
 def step3(fil):
 	#make directory for person call rate check output
 	os.system("mkdir " + fil + "out/step3")
+	os.system("mkdir " + fil + "out/step3/step3_0")
+	os.system("mkdir " + fil + "out/step3/step3_1")
+	os.system("mkdir " + fil + "out/step3/step3_2")	
+	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --missing --out " + fil + "out/step3/step3_1/step3_1")
 	#person call rate with standard 0.1 threshold
-	#write output to step5/step5
-	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-bed --out " + fil + "out/step3/step3")
+	#write output to step3/step3
+	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-bed --out " + fil + "out/step3/step3_0/step3_0")
+	os.system("plink --bfile " + fil + "out/step3/step3_0/step3_0 --missing --out " + fil + "out/step3/step3_2/step3_2")
+	
+	plot(fil + "out/histograms/step3_1-imiss", fil + "out/step3/step3_1/step3_1", ".imiss", "F_MISS")	
+	plot(fil + "out/histograms/step3_2-imiss", fil + "out/step3/step3_2/step3_2", ".imiss", "F_MISS")
+	plot(fil + "out/histograms/step3_2-lmiss", fil + "out/step3/step3_2/step3_2", ".lmiss", "F_MISS")
 
 	
 ### Step4: Hardy-Weinberg ###
@@ -100,8 +141,10 @@ def step4(fil):
 
 	#write hardy-weinberg test to step4
 	#where SNPs with p < 1e-6 are excluded
-	os.system("plink --bfile " + fil + "out/step3/step3 --hwe 1e-6 --make-bed --out " + fil + "out/step4/step4_0/step4_0")
+	os.system("plink --bfile " + fil + "out/step3/step3_0/step3_0 --hwe 1e-6 --make-bed --out " + fil + "out/step4/step4_0/step4_0")
 	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --hardy --out " + fil + "out/step4/step4_1/step4_1")
+	
+	plot(fil + "out/histograms/step4_1-hwe", fil + "out/step4/step4_1/step4_1", ".hwe", "P")
 	
 
 ### Step5: LD pruning ###
@@ -120,7 +163,8 @@ def step6(fil):
 	os.system("mkdir " + fil + "out/step6/step6_1") 
 	os.system("mkdir " + fil + "out/step6/step6_2")
 	#Plot IBD here
-
+	
+	
 	#determine min relatedness value to be used from plot
 
 	min_relatedness = raw_input("Enter value of minimum relatedness: \n Identical-twins\t 1\n Parent-child\t\t 0.5\n Full siblings\t\t 0.5\n Half-siblings\t\t 0.25\n Grandparent-grandchild\t 0.25\n Avuncular\t\t 0.25\n Half avuncular\t\t 0.125\n First-cousin\t\t 0.25\n Half-first-cousin\t 0.0625\n Half-sibling-plus-first-cousin\t 0.375\n")
@@ -158,6 +202,7 @@ def step6(fil):
 
 	#makes new bed, bim, fam files from extracted files above the relatedness threshold
 	
+	IBDplot(fil + "out/histograms/step6_1-LBD", fil + "out/step6/step6_1/step6_1.genome")
 	
 	
 ### Step7: heterozygosity check ###
@@ -171,10 +216,7 @@ def step7(fil):
 	#output .het file of inbreeding coefficients for plotting and .hh file
 
 	#Plot Het here
-
-
-
-
+	HETplot(fil + "out/histograms/step7_1-het.png", fil + "out/step7/step7_1/step7_1.het", "F")
 
 	#filter any outliers from plot, mean sd +/-3
 	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/step7_1 --make-bed --out " + fil + "out/step7/step7_2/step7_2")
@@ -248,6 +290,7 @@ args = parser.parse_args()          #creates the list of aruments called args
 
 fil = args.fil
 
+
 step1(fil)
 step2(fil)
 step3(fil)
@@ -255,4 +298,4 @@ step4(fil)
 step5(fil)
 step6(fil)
 step7(fil)
-step8(fil)
+#step8(fil)
