@@ -1,8 +1,11 @@
 # GWAS-pipeline
-GWAS pipeline requires .bed, .bim, and .fam files.   
-To run the program, enter "python wrapper.py file_location
+GWAS pipeline requires .bed, .bim, and .fam input files.   
+To run the program, enter "python wrapper.py file_location"
 
-Out info  
+Intallation of PLINK (https://www.cog-genomics.org/plink2/) is required.   
+Python modules used in pipleine: pandas, matplotlib, os, sys   
+
+Output Information  
 ---Step1: Sex Check QC---  
 ---Step2: SNP call rate---  
 Step2_0: filters SNPS with <99% call rate QC  
