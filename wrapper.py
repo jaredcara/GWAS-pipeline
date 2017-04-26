@@ -217,9 +217,11 @@ def step7(fil):
 
 	#Plot Het here
 	HETplot(fil + "out/histograms/step7_1-het.png", fil + "out/step7/step7_1/step7_1.het", "F")
-
+	
+	#make txt file of outliers to be removed
+	
 	#filter any outliers from plot, mean sd +/-3
-	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/step7_1 --make-bed --out " + fil + "out/step7/step7_2/step7_2")
+	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/step7_1.txt --make-bed --out " + fil + "out/step7/step7_2/step7_2")
 	#calculates inbreeding coeffecients
 	
 
