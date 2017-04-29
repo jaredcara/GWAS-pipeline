@@ -232,24 +232,20 @@ def step8(fil):
 	os.system("mkdir " + fil + "out/step8/step8_3")
 	os.system("mkdir " + fil + "out/step8/step8_4")
 
-	#step 8a:
-	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step8/step8_1/step8_1")
-	#plink --bfile testdataout/step2/step2_0 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step/step8_1/step8_1
+	os.system("plink --bfile " + fil + "out/step7/step7_2/step7_2 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step8/step8_1/step8_1")
 	#merge QC bfile from previous step 5f with hg19 bed, bim, fam files
 	#makes -merge.missnp file
 
-	#step 8b:
-	os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --make-bed --out " + fil + "out/step8/step8_2/step8_2")
+	os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --geno 0.1 --make-bed --out " + fil + "out/step8/step8_2/step8_2_HAPMAP")
 	#merge again excluding missing SNPs
 	#out makes bed, bim, fam files
 
-	#step 8c:
-	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --bmerge " + fil + "out/step8/step8_2/step8_2.bed " + fil + "out/step8/step8_2/step8_2.bim " + fil + "out/step8/step8_2/step8_2.fam --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+	os.system("plink --bfile " + fil + "out/step7/step7_2/step7_2 --bmerge " + fil + "out/step8/step8_2/step8_2_HAPMAP.bed " + fil + "out/step8/step8_2/step8_2_HAPMAP.bim " + fil + "out/step8/step8_2/step8_2_HAPMAP.fam --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
 	#merge again
 	#out makes bed, bim, fam files 
 
 	#grep Warning snps 
-    	os.system("grep 'Warning:' " + fil + "out/step8/step8_3/step8_3.log > " + fil + "out/step8/step8_3/duplicateSNPs.txt")
+    	os.system("grep 'Warning: Variants' " + fil + "out/step8/step8_3/step8_3.log > " + fil + "out/step8/step8_3/duplicateSNPs.txt")
     	#merge again
     	#only save input in quotes, then remove them
     	f = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'r')
@@ -272,27 +268,27 @@ def step8(fil):
         	w.write('\n')
     	w.close()
     
-    	#merge again without duplicates
-    	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --make-bed --out " + fil + "out/step8/step8_4/step8_4")
+    	#Remove duplicates from filtered HAPMAP file
+	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2_HAPMAP --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4_HAPMAP")
+    	#Genotyping rate 0.99
     
-    	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --bmerge " + fil + "out/step8/step8_4/step8_4.bed " + fil + "out/step8/step8_4/step8_4.bim " + fil + "out/step8/step8_4/step8_4.fam --make-bed --out " + fil + "out/step8/step8_5/step8_5")
+    	#Remove duplicates from QC file    	
+    	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_3 --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
     	
+	#merge again without duplicates
+    	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --geno 0.1 --exclude " + fil + "out/step8/step8_3/duplicateSNPs.txt --bmerge " + fil + "out/step8/step8_4/step8_4_HAPMAP.bed " + fil + "out/step8/step8_4/step8_4_HAPMAP.bim " + fil + "out/step8/step8_4/step8_4_HAPMAP.fam --make-bed --out " + fil + "out/step8/step8_5/step8_5")
 	
-	#step 8d:
 	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_6/step8_6")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 
-	#step 8e:
 	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_6/step8_6")
 	#makes .map and .ped files for smartpca 
 	#makes ..step6e.prune.in and prune.out files 
 
-	#step 8f:
 	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_5/step8_5.fam > " + fil + "out/step8/step8_6/step8_6.fam")
 	#extracts columns from 6d fam file to 6e
 
-	#step 8g:
 	#create parfile for smartpca
 	
 	o = open(str(fil) + "out/step8/step8_6/step8_6.par", 'w')
@@ -308,9 +304,7 @@ def step8(fil):
 	o.write("outliersigmathresh: 6\n")
 	o.close()
 
-	#os.system("module load eigensoft/5.0.1")
 
-	#step 8h:
 	os.system("smartpca -p " + fil + "out/step8/step8_6/step8_6.par")
 
 	
