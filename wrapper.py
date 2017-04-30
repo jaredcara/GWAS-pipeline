@@ -7,6 +7,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import sys
+import numpy
 
 
 def plot(out, name, type, var):
@@ -17,7 +18,7 @@ def plot(out, name, type, var):
 	plt.xlabel(str(var)) #add the x label
 	plt.ylabel("Frequency") #add the y label
 	plt.title(str(var) + " Frequncy Histogram") #add the title
-	plt.savefig(str(out) + ".png") #save the file to specified file name as a .png
+	plt.savefig(str(out) + ".png", bbox_inches = 'tight', format = 'png', dpi = 900) #save the file to specified file name as a .png
 
 	
 def IBDplot(out, name):
@@ -28,13 +29,11 @@ def IBDplot(out, name):
 	plt.xlabel("Z0")
 	plt.ylabel("Z1")
 	plt.title("Check Identity by Descent (IBD)")
-	plt.savefig(str(out) + ".png") #save the file to specified file name as a .png
+	plt.savefig(str(out) + ".png", bbox_inches = 'tight', format = 'png', dpi = 900) #save the file to specified file name as a .png
 
 	
 def HETplot(out, name, var):
 	data = pd.read_table(name, sep= r'\s*', engine = "python") #use panda to read in the data from specified file
-	
-	sdn = 6 #This tells you how many SDs to plot the line away from change to personal preference
 	
 	plt.figure()
 	plt.hist(data[var], bins = 100) #add a histogram to the figure
@@ -48,7 +47,116 @@ def HETplot(out, name, var):
 	plt.axvline(x = mean + std * sdn, color = 'r')
 	plt.axvline(x = mean - std * sdn, color = 'r')
 	
-	plt.savefig(str(out)) #save the file to specified file name as a .png
+	plt.savefig(str(out), bbox_inches = 'tight', format = 'png', dpi = 900) #save the file to specified file name as a .png
+
+	f = open(name, 'r')
+	s = f.readlines()
+	f.close()
+	
+	these = []
+	
+	for each in s:
+		this = each.split()
+		if this[5] >= (mean + (std * sdn)):
+			if this[5] <= (mean - (std * sdn)):
+				print this[0]
+				these.eppend(this[0]+'\t'+this[1])
+		
+	return these
+		
+	
+
+	
+#to be used after step8_6	
+def PCAplot(out, name):
+	pd.options.mode.chained_assignment = None #remove warning that pops up
+	hapmapinfo = pd.read_table("/home/rsavaliya/gwas_test/pop_HM3_hg19_forPCA.txt", sep = r'\s*', engine = 'python', header = None, usecols=(0,2), names = ["pop", 'IID']) #read in the location of the population data
+	fam = pd.read_table(name + ".fam", sep = r'\s*', engine = 'python', header = None, usecols=(0,1), names = ["FID", 'IID']) #read in the data from the fam file
+	popinfo = fam.join(hapmapinfo.set_index("IID"), on = "IID") #merge the two previous files using the IID values
+	evec = pd.read_table(name + ".evec", sep = r'\s*', engine = 'python', header = None, skiprows = 1) #read in the evec file
+	i = 0
+	while i < len(evec): #fixes the evec IID columns
+		x = evec[0][i].index(':')
+		evec[0][i]= evec[0][i][x+1:]
+		i += 1
+	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
+	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+	plt.figure() #creates a new figure
+	for row in PCA.itertuples(): #plots the data by the family it is from
+		if row[14] == "ASN": #Plots the ASN and makes their points red
+			A = plt.scatter(row[2], row[3], c = 'r', alpha = .5, s = 20)
+		elif row[14] == "CEU": #Plots the CEU and makes their points blue
+			C = plt.scatter(row[2], row[3], c = 'b', alpha = .5, s = 20)
+		elif row[14] == "YRI": #Plots the YRI and makes their points magenta
+			Y = plt.scatter(row[2], row[3], c = 'm', alpha = .5, s = 20)
+		else: #Plots everything else and makes the points green
+			G = plt.scatter(row[2], row[3], c = 'g', alpha = .5, s = 20)
+	plt.xlabel("PC1") #adds xlabel
+	plt.ylabel("PC2") #adds ylabel
+	plt.title("PCA Plot 1 (PC1 vs PC2)") #addes title
+	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1) #adds the legend
+	plt.savefig(out + "PCA1.png", bbox_inches = 'tight', format = 'png', dpi = 900) #saves the figure
+
+	plt.figure() #this code is the same as above except with different columns used to create the graph
+	for row in PCA.itertuples():
+		if row[14] == "ASN":
+			A = plt.scatter(row[2], row[4], c = 'r', alpha = .5, s = 20)
+		elif row[14] == "CEU":
+			C = plt.scatter(row[2], row[4], c = 'b', alpha = .5, s = 20)
+		elif row[14] == "YRI":
+			Y = plt.scatter(row[2], row[4], c = 'm', alpha = .5, s = 20)
+		else:
+			G = plt.scatter(row[2], row[4], c = 'g', alpha = .5, s = 20)
+	plt.xlabel("PC1")
+	plt.ylabel("PC3")
+	plt.title("PCA Plot 2 (PC1 vs PC3)")
+	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
+	plt.savefig(out + "PCA2.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
+
+	plt.figure() #this code is the same as above except with different columns used to create the graph
+	for row in PCA.itertuples():
+		if row[14] == "ASN":
+			A = plt.scatter(row[3], row[4], c = 'r', alpha = .5, s = 20)
+		elif row[14] == "CEU":
+			C = plt.scatter(row[3], row[4], c = 'b', alpha = .5, s = 20)
+		elif row[14] == "YRI":
+			Y = plt.scatter(row[3], row[4], c = 'm', alpha = .5, s = 20)
+		else:
+			G = plt.scatter(row[3], row[4], c = 'g', alpha = .5, s = 20)
+	plt.xlabel("PC2")
+	plt.ylabel("PC3")
+	plt.title("PCA Plot 3 (PC2 vs PC3)")
+	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
+	plt.savefig(out + "PCA3.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
+
+	xvals = []
+	yvals = []
+	plt.figure() #this code is the similar to above except it adds lines 5 std dev away from selected point
+	for row in PCA.itertuples():
+		if row[14] == "ASN":
+			A = plt.scatter(row[2], row[3], c = 'r', alpha = .5, s = 20)
+		elif row[14] == "CEU":
+			C = plt.scatter(row[2], row[3], c = 'b', alpha = .5, s = 20)
+		elif row[14] == "YRI":
+			Y = plt.scatter(row[2], row[3], c = 'm', alpha = .5, s = 20)
+			xvals.append(row[2]) #used to add bars to PCA plot
+			yvals.append(row[3]) #move these two lines under desired population for bars be sure to change the x and y for where the values are coming from
+		else:
+			G = plt.scatter(row[2], row[3], c = 'g', alpha = .5, s = 20)
+	xmean = sum(xvals)/float(len(xvals)) #calculate the mean
+	ymean = sum(yvals)/float(len(yvals)) #calculate the mean
+	xstd = numpy.std(xvals) #calculate std dev
+	ystd = numpy.std(yvals) #calculate std dev
+	sdn = 5 #number of standard deviations away from mean you want line to be
+	plt.axvline(x= xmean+xstd*sdn, color = 'k') #add line x sd away from xmean
+	plt.axvline(x= xmean-xstd*sdn, color = 'k')
+	plt.axhline(y= ymean+ystd*sdn, color = 'k') #add line x sd away from ymean
+	plt.axhline(y= ymean-ystd*sdn, color = 'k')
+	plt.xlabel("PC1")
+	plt.ylabel("PC2")
+	plt.title("PCA Plot 1 (PC1 vs PC2) with lines")
+	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
+	plt.savefig(out + "PCA1Lines.png", bbox_inches = 'tight', format = 'png', dpi = 900)
 		
 	
 ### Step1: Sex Check ###
@@ -93,14 +201,14 @@ def step2(fil):
 	os.system("mkdir " + fil + "out/histograms")
 	os.system("mkdir " + fil + "out/step2")
 	os.system("mkdir " + fil + "out/step2/step2_1")
-	os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt --missing --out " + fil + "out/step2/step2_1/step2_1")
+	os.system("plink --bfile " + fil + " --remove " + fil + "out/step1/exclude.txt --missing --out " + fil + "out/step2/step2_1/step2_1")
 	
 	#recalculates call rate after removing SNPs with call rates <99% and creates a new set of files
 	#excudes data from the sex_check
 	#writes data to step2/step2_0/step2_0
 
 	os.system("mkdir " + fil + "out/step2/step2_0")
-	os.system("plink --bfile " + fil + " --exclude " + fil + "out/step1/exclude.txt --geno 0.01 --make-bed --out " + fil + "out/step2/step2_0/step2_0")
+	os.system("plink --bfile " + fil + " --remove " + fil + "out/step1/exclude.txt --geno 0.01 --make-bed --out " + fil + "out/step2/step2_0/step2_0")
 
 	##Creates two files: .imiss (individual) and .lmiss (SNP/locus) that details missingness in data
 	#writes data to step2/step2_2/step2_2
@@ -150,12 +258,13 @@ def step4(fil):
 ### Step5: LD pruning ###
 def step5(fil):
 	os.system("mkdir " + fil + "out/step5")
+	os.system("mkdir " + fil + "out/step5/step5_0")
 	os.system("mkdir " + fil + "out/step5/step5_1")
 
-	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_1/step5_1")
+	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --indep-pairwise 50 5 0.3 --out " + fil + "out/step5/step5_0/step5_0")
 	#indep-pairwise:window size in SNPs, the number of SNPs to to shift the window at each step, VIF threshold (could be 0.2 or 0.3)
 	#output is 2 files of pruned SNPs: .prune.in and .prune.out 
-
+	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_0/step5_0.prune.in --make-bed --out " + fil + "out/step5/step5_1/step5_1")
 	
 ### Step6: Relationship and IBD check ###	
 def step6(fil):
@@ -167,10 +276,10 @@ def step6(fil):
 	
 	#determine min relatedness value to be used from plot
 
-	min_relatedness = raw_input("Enter value of minimum relatedness: \n Identical-twins\t 1\n Parent-child\t\t 0.5\n Full siblings\t\t 0.5\n Half-siblings\t\t 0.25\n Grandparent-grandchild\t 0.25\n Avuncular\t\t 0.25\n Half avuncular\t\t 0.125\n First-cousin\t\t 0.25\n Half-first-cousin\t 0.0625\n Half-sibling-plus-first-cousin\t 0.375\n")
-
+	min_relatedness = ibd
+	
 	#filter related 
-	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --genome --min " + str(min_relatedness) + " --out " + fil + "out/step6/step6_1/step6_1")
+	os.system("plink --bfile " + fil + "out/step5/step5_1/step5_1 --genome --min " + str(min_relatedness) + " --out " + fil + "out/step6/step6_1/step6_1")
 	
 	#min: exclude pairs that share more than 25% of genome, PI HAT pairs greater than 0.25 if highly related (relatedness of full siblings and more related), if not want to use value of 0.05 
 	#out: extracts SNPs to .genome out file
@@ -198,11 +307,11 @@ def step6(fil):
 		w.write(each)
 		w.write('\n')
 	w.close()
-	os.system("plink --bfile " + fil + "out/step4/step4_0/step4_0 --extract " + fil + "out/step5/step5_1/step5_1.prune.in --remove " + fil + "out/step6/step6_1/relatedtoremove.txt --make-bed --out  " + fil + "out/step6/step6_2/step6_2")
+	os.system("plink --bfile " + fil + "out/step5/step5_1/step5_1 --remove " + fil + "out/step6/step6_1/relatedtoremove.txt --make-bed --out  " + fil + "out/step6/step6_2/step6_2")
 
 	#makes new bed, bim, fam files from extracted files above the relatedness threshold
 	
-	IBDplot(fil + "out/histograms/step6_1-LBD", fil + "out/step6/step6_1/step6_1.genome")
+	IBDplot(fil + "out/histograms/step6_1-IBD", fil + "out/step6/step6_1/step6_1.genome")
 	
 	
 ### Step7: heterozygosity check ###
@@ -216,12 +325,18 @@ def step7(fil):
 	#output .het file of inbreeding coefficients for plotting and .hh file
 
 	#Plot Het here
-	HETplot(fil + "out/histograms/step7_1-het.png", fil + "out/step7/step7_1/step7_1.het", "F")
+	these = HETplot(fil + "out/histograms/step7_1-het.png", fil + "out/step7/step7_1/step7_1.het", "F")
+
+	o = open(fil + "out/step7/step7_1/issues.txt", 'w')
+	for each in these:
+		o.write(each)
+		o.write('\n')
 	
-	#make txt file of outliers to be removed
+	o.close()
+	
 	
 	#filter any outliers from plot, mean sd +/-3
-	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/step7_1.txt --make-bed --out " + fil + "out/step7/step7_2/step7_2")
+	os.system("plink --bfile " + fil + "out/step6/step6_2/step6_2 --remove " + fil + "out/step7/step7_1/issues.txt --make-bed --out " + fil + "out/step7/step7_2/step7_2")
 	#calculates inbreeding coeffecients
 	
 
@@ -231,66 +346,73 @@ def step8(fil):
 	os.system("mkdir " + fil + "out/step8/step8_2")
 	os.system("mkdir " + fil + "out/step8/step8_3")
 	os.system("mkdir " + fil + "out/step8/step8_4")
+	os.system("mkdir " + fil + "out/step8/step8_5")
+	os.system("mkdir " + fil + "out/step8/step8_6")
 
+	
 	os.system("plink --bfile " + fil + "out/step7/step7_2/step7_2 --bmerge /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bed /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.bim /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig.fam --make-bed --out " + fil + "out/step8/step8_1/step8_1")
 	#merge QC bfile from previous step 5f with hg19 bed, bim, fam files
 	#makes -merge.missnp file
 
+	
 	os.system("plink --bfile /home/wheelerlab2/Data/HAPMAP3_hg19/HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig --exclude " + fil + "out/step8/step8_1/step8_1-merge.missnp --geno 0.1 --make-bed --out " + fil + "out/step8/step8_2/step8_2_HAPMAP")
 	#merge again excluding missing SNPs
 	#out makes bed, bim, fam files
 
+	
 	os.system("plink --bfile " + fil + "out/step7/step7_2/step7_2 --bmerge " + fil + "out/step8/step8_2/step8_2_HAPMAP.bed " + fil + "out/step8/step8_2/step8_2_HAPMAP.bim " + fil + "out/step8/step8_2/step8_2_HAPMAP.fam --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
 	#merge again
 	#out makes bed, bim, fam files 
 
-	#grep Warning snps 
-    	os.system("grep 'Warning: Variants' " + fil + "out/step8/step8_3/step8_3.log > " + fil + "out/step8/step8_3/duplicateSNPs.txt")
-    	#merge again
-    	#only save input in quotes, then remove them
-    	f = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'r')
-    	r = f.readlines()
-    	f.close()
-    
-    	#in each line only return the duplicate SNP name
-    	#remove both or just one?
-    	duplicates = []
-    	for each in r:
-        	each = each.replace("'", "")
-        	snp = each.split()
-        	duplicates.append(snp[2]+'\t'+snp[4])
-                
-        
-    	#write to testdata/exclude.txt, to be used for down pipe commands    
-    	w = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'w')
-    	for each in duplicates:
-        	w.write(each)
-        	w.write('\n')
-    	w.close()
-    
-    	#Remove duplicates from filtered HAPMAP file
-	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2_HAPMAP --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4_HAPMAP")
-    	#Genotyping rate 0.99
-    
-    	#Remove duplicates from QC file    	
-    	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_3 --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
-    	
-	#merge again without duplicates
-    	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --geno 0.1 --exclude " + fil + "out/step8/step8_3/duplicateSNPs.txt --bmerge " + fil + "out/step8/step8_4/step8_4_HAPMAP.bed " + fil + "out/step8/step8_4/step8_4_HAPMAP.bim " + fil + "out/step8/step8_4/step8_4_HAPMAP.fam --make-bed --out " + fil + "out/step8/step8_5/step8_5")
 	
+	#grep Warning snps 
+	os.system("grep 'Warning: Variants' " + fil + "out/step8/step8_3/step8_3.log > " + fil + "out/step8/step8_3/duplicateSNPs.txt")
+	#merge again
+	#only save input in quotes, then remove them
+	f = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'r')
+	r = f.readlines()
+	f.close()
+	
+	
+	#in each line only return the duplicate SNP name
+	#remove both or just one?
+	duplicates = []
+	for each in r:
+		each = each.replace("'", "")
+		snp = each.split()
+		duplicates.append(snp[2]+'\t'+snp[4])
+	
+	
+	#write to testdata/exclude.txt, to be used for down pipe commands    
+	w = open(fil + "out/step8/step8_3/duplicateSNPs.txt", 'w')
+	for each in duplicates:
+		w.write(each)
+		w.write('\n')
+	w.close()
+	
+	#Remove duplicates from filtered HAPMAP file
+	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2_HAPMAP --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4_HAPMAP")
+	#Genotyping rate 0.99
+	
+	#Remove duplicates from QC file
+	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --remove " + fil + "out/step8/step8_3/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
+	
+	#merge again without duplicates
+	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --geno 0.1 --exclude " + fil + "out/step8/step8_3/duplicateSNPs.txt --bmerge " + fil + "out/step8/step8_4/step8_4_HAPMAP.bed " + fil + "out/step8/step8_4/step8_4_HAPMAP.bim " + fil + "out/step8/step8_4/step8_4_HAPMAP.fam --make-bed --out " + fil + "out/step8/step8_5/step8_5")
+
 	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_6/step8_6")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
-
+	
 	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_6/step8_6")
-	#makes .map and .ped files for smartpca 
+	#makes .map and .ped files for smartpca
 	#makes ..step6e.prune.in and prune.out files 
 
 	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_5/step8_5.fam > " + fil + "out/step8/step8_6/step8_6.fam")
 	#extracts columns from 6d fam file to 6e
 
 	#create parfile for smartpca
-	
+
 	o = open(str(fil) + "out/step8/step8_6/step8_6.par", 'w')
 	o.write("genotypename: " + str(fil) + "out/step8/step8_6/step8_6.ped\n")
 	o.write("snpname: " + str(fil) + "out/step8/step8_6/step8_6.map\n")
@@ -306,16 +428,22 @@ def step8(fil):
 
 
 	os.system("smartpca -p " + fil + "out/step8/step8_6/step8_6.par")
+	
+	PCAplot(fil + "out/histograms/", fil + "out/step8/step8_6/step8_6")
+	
+	
 
 	
 	
-parser = argparse.ArgumentParser()  #creates the parser list for argparse
-parser.add_argument('fil', help="enter file name ex. '/home/user/desktop/infile' without extentions")
-#parser.add_argument("test", help="simply a test") #testing argument
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  #creates the parser list for argparse
+parser.add_argument('fil', help="Enter file name ex. '/home/user/desktop/infile' without extentions")
+parser.add_argument('ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
+parser.add_argument('sdn', action = 'store', nargs = '?',type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check") #testing argument
 args = parser.parse_args()          #creates the list of aruments called args
 
 fil = args.fil
-
+ibd = args.ibd
+sdn = args.sdn
 
 step1(fil)
 step2(fil)
@@ -324,4 +452,4 @@ step4(fil)
 step5(fil)
 step6(fil)
 step7(fil)
-#step8(fil)
+step8(fil)
