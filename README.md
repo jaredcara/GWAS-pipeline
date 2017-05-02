@@ -30,17 +30,15 @@ Step4_1: Hardy-Weinberg stats
 Step5_0: Prune.in: filtered SNPs below r^2 theshold of 0.2, prune.out: filterted SNPs above threshold    
 Step5_1: Heterozygosity check   
 ---Step6: ---  
-Step6_1: Generates pairwise IBS  
-Step6_2: Filters related individuals  
+Step6_0: Generates pairwise IBS  
+Step6_1: Filters related individuals  
 ---Step7: ---  
-Step7_1: Heterozygosity check      
-Step7_2: Filters outliers      
+Step7_0: Heterozygosity check      
+Step7_1: Filters outliers      
 ---Step8: ---  
-Step8_1: Generates missing SNPs from HAPMAP and QC files to be merged, filters SNPs that are missing     
-Step8_2: filters SNPs that are missing   
-Step8_3: merged genotypes  
-Step8_4: filtered SNPs for pca 
-
-
-
-
+Step8_0: Generates missing SNPs from HAPMAP and QC files to be merged, filters SNPs that are missing     
+Step8_1: filters SNPs that are missing   
+Step8_2: merged genotypes  
+Step8_3: filtered SNPs for pca  
+Step8_4:  
+Step8_5:  
