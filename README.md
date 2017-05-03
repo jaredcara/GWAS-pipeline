@@ -5,13 +5,20 @@ The bmerge data for hg19 is hosted on our github
 
 To run the program, enter "python gwas-pipelineQC.py file_name pop_data_for_PCA_plots bmerge_data"  
 When entering the file name and bmerge data, extentions should not be entered
+The file containing the pop data for PCA plots should be similar to the .fam input file.
+Except in row 1 you should include the population data, also data should be tab delimited.
+For example, it should read: POPULATION FID IID (other info from .fam file)
+
+PCA plots will only be created for datasets containing ASN, CEU, and YRI as the populations being tested for.
+If there are any deviations from these populations, changes will need to be made to the code.
+GWAS points are assumed to be any point that isn't already labeled from the pop data for PCA plots file.
 
 Other options include IBD relatedness and number of standard deviations for the heterozygosity check  
 If you do not include these options the defaults will utilized
 
 Intallation of PLINK (https://www.cog-genomics.org/plink2/) is required.   
-Python modules used in pipleine: pandas, matplotlib, os, sys   
-Pandas and matplotlib may need to be installed on your system  
+Python modules used in pipleine: pandas, matplotlib, os, sys, numpy   
+Pandas, matplotlib, and numpy may need to be installed on your system  
 
 Output Information  
 ---Step1: Sex Check QC---  
