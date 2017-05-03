@@ -362,7 +362,7 @@ def step7(fil):
 	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
 	#calculates inbreeding coeffecients
 	
-
+### Step 8: PCA ###
 def step8(fil):
 	os.system("mkdir " + fil + "out/step8")
 	os.system("mkdir " + fil + "out/step8/step8_0")
@@ -429,7 +429,7 @@ def step8(fil):
 	
 	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_5/step8_5")
 	#makes .map and .ped files for smartpca
-	#makes ..step6e.prune.in and prune.out files 
+	#makes ..step8e.prune.in and prune.out files 
 
 	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_4/step8_4.fam > " + fil + "out/step8/step8_5/step8_5.fam")
 	#extracts columns from 6d fam file to 6e
@@ -454,12 +454,46 @@ def step8(fil):
 	
 	PCAplot("out/step8/step8_5/step8_5")
 	
+### Step 9: Rerun PCA without MAPMAP ###
 def step9(fil):
+	os.system("mkdir " + fil + "out/step9")
+	os.system("mkdir " + fil + "out/step9/9_0")
+	os.system("mkdir " + fil + "out/step9/9_1")
+	
+	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step9/step9_0/step9_0")
+	#keeps SNPs of merged file to genotypes above 90%
+	#out bed, bim, fam files
+	
+	os.system("plink --bfile " + fil + "out/step8/step9_0/step9_0 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step9/step9_1/step9_1")
+	#makes .map and .ped files for smartpca
+	#makes ..step8e.prune.in and prune.out files 
 
+	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step9/step9_0/step9_0.fam > " + fil + "out/step9/step9_1/step9_1.fam")
+	#extracts columns from fam file 
+
+	#create parfile for smartpca
+
+	o = open(str(fil) + "out/step9/step9_1/step9_1.par", 'w')
+	o.write("genotypename: " + str(fil) + "out/step9/step9_1/step9_1.ped\n")
+	o.write("snpname: " + str(fil) + "out/step9/step9_1/step9_1.map\n")
+	o.write("indivname: " + str(fil) + "out/ste9/step9_1/step9_1.fam\n")
+	o.write("evecoutname: " + str(fil) + "out/step9/step9_1/step9_1.evec\n")
+	o.write("evaloutname: " +  str(fil) + "out/step9/step9_1/step9_1.eval\n")
+	o.write("outliername: " +  str(fil) + "out/step9/step9_1/step9_1.outlier\n")
+	o.write("numoutevec: 10\n")
+	o.write("numoutlieriter: 0\n")
+	o.write("numoutlierevec: 2\n")
+	o.write("outliersigmathresh: 6\n")
+	o.close()
+
+
+	os.system("smartpca -p " + fil + "out/step9/step9_1/step9_1.par")
+	
+	PCAplot("out/step9/step9_1/step9_1")
 
 def step10(fil):
-	os.system("mkdir " + fil + "out/step9")
-	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --freq --out " + fil + "out/step9/step9")
+	os.system("mkdir " + fil + "out/step10")
+	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --freq --out " + fil + "out/step10/step10")
 	
 	#os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step8/step8_5/step8_5.bim -f " + fil + "out/step9/step9.frq -r " + ref + " -h")
 	
@@ -493,5 +527,5 @@ step6(fil)
 step7(fil)
 step8(fil)
 step9(fil)
+step10(fil)
 res.close()
-step9(fil)
