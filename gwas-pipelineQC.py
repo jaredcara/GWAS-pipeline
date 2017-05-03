@@ -460,7 +460,7 @@ def step9(fil):
 	os.system("mkdir " + fil + "out/step9/9_0")
 	os.system("mkdir " + fil + "out/step9/9_1")
 	
-	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step9/step9_0/step9_0")
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step9/step9_0/step9_0")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 	
