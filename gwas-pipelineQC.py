@@ -413,9 +413,44 @@ def step8(fil):
 		w.write('\n')
 	w.close()
 	
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+ 	#merge again without duplicates
+ 
+    	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
+    	#keeps SNPs of merged file to genotypes above 90%
+    	#out bed, bim, fam files
+    
+    	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step8/step8_4/step8_4")
+    	#makes .map and .ped files for smartpca
+    	#makes ..step8e.prune.in and prune.out files 
+
+    	os.system("awk '{print $1,$2,$3,$4,$5,1}' " + fil + "out/step8/step8_3/step8_3.fam > " + fil + "out/step8/step8_4/step8_4.fam")
+   	#extracts columns from 6d fam file to 6e
+
+    	#create parfile for smartpca
+
+    	o = open(str(fil) + "out/step8/step8_4/step8_4.par", 'w')
+    	o.write("genotypename: " + str(fil) + "out/step8/step8_4/step8_4.ped\n")
+    	o.write("snpname: " + str(fil) + "out/step8/step8_4/step8_4.map\n")
+    	o.write("indivname: " + str(fil) + "out/step8/step8_4/step8_4.fam\n")
+    	o.write("evecoutname: " + str(fil) + "out/step8/step8_4/step8_4.evec\n")
+   	o.write("evaloutname: " +  str(fil) + "out/step8/step8_4/step8_4.eval\n")
+    	o.write("outliername: " +  str(fil) + "out/step8/step8_4/step8_4.outlier\n")
+    	o.write("numoutevec: 10\n")
+    	o.write("numoutlieriter: 0\n")
+    	o.write("numoutlierevec: 2\n")
+    	o.write("outliersigmathresh: 6\n")
+    	o.close()
+
+
+   	os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
+    
+    	PCAplot("out/step8/step8_4/step8_4")
+	
+	###Use code below instead if merge is unsuccessful### 
+	'''
 	#Remove duplicates from filtered HAPMAP file
 	os.system("plink --bfile " + fil + "out/step8/step8_1/step8_1_HAPMAP --remove " + fil + "out/step8/step8_2/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3_HAPMAP")
-	#Genotyping rate 0.99
 	
 	#Remove duplicates from QC file
 	os.system("plink --bfile " + fil + "out/step8/step8_2/step8_2 --remove " + fil + "out/step8/step8_2/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
@@ -452,7 +487,9 @@ def step8(fil):
 
 	os.system("smartpca -p " + fil + "out/step8/step8_5/step8_5.par")
 	
-	PCAplot("out/step8/step8_5/step8_5")
+	PCAplot("out/step8/step8_5/step8_5") '''
+	### ###
+	
 	
 ### Step 9: Rerun PCA without MAPMAP ###
 def step9(fil):
