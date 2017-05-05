@@ -184,7 +184,55 @@ def PCAplot(name, out):
 	plt.title("PCA Plot 1 (PC1 vs PC2) with lines")
 	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
 	plt.savefig(fil + "out/histograms/" + out + "_PCA1Lines.png", bbox_inches = 'tight', format = 'png', dpi = 900)
+
+	
+	
+def PCAplot2(name, out):
+	r = open(fil + name + ".evec", 'r') #open the evec file
+	e = r.readline() #read the first line where all the eigen values are stored
+	r.close() #close the file
+	e = e.split() #put everything into an array
+	del e[0] #delete the first element (it is not needed for calculation)
+	e = [float(x) for x in e] #convert all elements in array to float values
+	e = [str(round(x/sum(e), 3)) for x in e] #perform calculations rounding to 3 digits
+	res.write("PCA 2")
+	res.write('\n')
+	res.write('\t'.join(e)) #print the calculated values
+
+	pd.options.mode.chained_assignment = None #remove warning that pops up
+	hapmapinfo = pd.read_table(hap, sep = r'\s*', engine = 'python', header = None, usecols=(0,2), names = ["pop", 'IID']) #read in the location of the population data
+	fam = pd.read_table(fil + name + ".fam", sep = r'\s*', engine = 'python', header = None, usecols=(0,1), names = ["FID", 'IID']) #read in the data from the fam file
+	popinfo = fam.join(hapmapinfo.set_index("IID"), on = "IID") #merge the two previous files using the IID values
+	evec = pd.read_table(fil + name + ".evec", sep = r'\s*', engine = 'python', header = None, skiprows = 1) #read in the evec file
+	i = 0
+	while i < len(evec): #fixes the evec IID columns
+		x = evec[0][i].index(':')
+		evec[0][i]= evec[0][i][x+1:]
+		i += 1
+	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
+	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+	plt.figure() #creates a new figure
+	plt.scatter(PCA["PC1"], PCA["PC2"], alpha = .5, s = 20)
+	plt.xlabel("PC1") #adds xlabel
+	plt.ylabel("PC2") #adds ylabel
+	plt.title("PCA Plot 1 (PC1 vs PC2)") #addes title
+	plt.savefig(fil + "out/histograms/" + out + "_PCA1.png", bbox_inches = 'tight', format = 'png', dpi = 900) #saves the figure
+
+	plt.figure() #this code is the same as above except with different columns used to create the graph
+	plt.scatter(PCA["PC1"], PCA["PC3"], alpha = .5, s = 20)
+	plt.xlabel("PC1")
+	plt.ylabel("PC3")
+	plt.title("PCA Plot 2 (PC1 vs PC3)")
+	plt.savefig(fil + "out/histograms/" + out + "_PCA2.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
+
+	plt.figure() #this code is the same as above except with different columns used to create the graph
+	plt.scatter(PCA["PC2"], PCA["PC3"], alpha = .5, s = 20)
+	plt.xlabel("PC2")
+	plt.ylabel("PC3")
+	plt.title("PCA Plot 3 (PC2 vs PC3)")
+	plt.savefig(fil + "out/histograms/" + out + "_PCA3.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
 		
+	
 	
 ### Step1: Sex Check ###
 def step1(fil):
@@ -417,6 +465,7 @@ def step8(fil):
  	#merge again without duplicates
  
     	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
+	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out to_impute")
     	#keeps SNPs of merged file to genotypes above 90%
     	#out bed, bim, fam files
     
@@ -444,7 +493,11 @@ def step8(fil):
 
 
    	os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
-    
+
+	os.system("cp " + fil + "out/step8/step8_4/step8_4.bed to_impute.bed")
+	os.system("cp " + fil + "out/step8/step8_4/step8_4.bim to_impute.bim")
+	os.system("cp " + fil + "out/step8/step8_4/step8_4.bim to_impute.fam")
+	
     	PCAplot("out/step8/step8_4/step8_4", "With_Map")
 	
 	###Use code below instead if merge is unsuccessful### 
@@ -487,7 +540,8 @@ def step8(fil):
 
 	os.system("smartpca -p " + fil + "out/step8/step8_5/step8_5.par")
 	
-	PCAplot("out/step8/step8_5/step8_5") """
+	PCAplot("out/step8/step8_5/step8_5")
+	"""
 	### ###
 	
 	
@@ -526,22 +580,74 @@ def step9(fil):
 
 	os.system("smartpca -p " + fil + "out/step9/step9_1/step9_1.par")
 	
-	PCAplot("out/step9/step9_1/step9_1", "No_Map")
+	PCAplot2("out/step9/step9_1/step9_1", "No_Map")
 
 
 def step10(fil):
 	os.system("mkdir " + fil + "out/step10")
-	os.system("plink --bfile " + fil + "out/step8/step8_5/step8_5 --freq --out " + fil + "out/step10/step10")
+	os.system("mkdir " + fil + "out/step10/step10_1")
+	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --freq --out " + fil + "out/step10/step10")
 	
-	#os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step8/step8_5/step8_5.bim -f " + fil + "out/step9/step9.frq -r " + ref + " -h")
+	os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step8/step8_4/step8_4.bim -f " + fil + "out/step10/step10.frq -r " + ref + " -h")
+	
+	new = open("Run-plink.sh", 'r')
+	line = new.readlines()
+	new.close()
+
+	x = line[0]
+	y = x.split(' ')
+	y[2] = fil + "out/step8/step8_4/step8_4"	
+	z = ""
+	for each in y:
+		z = z + ' ' + each
+	line[0] = z
 	
 
+	for i in range(5,len(line)-1):
+		x = line[i]
+		y = x.split(' ')
+		y[9] = fil + "out/step10/step10_1/" + y[9]
+		z = ''
+		for each in y:
+ 			z = z + ' ' + each
+		line[i] = z
+
+
+	new = open(fil + "out/step10/step10_1/Run-plink.sh", 'w')
+	for each in line:
+		new.write(each)
+	new.close()
 	
+	os.system("sh " + fil + "out/step10/step10_1/Run-plink.sh")
+	
+	os.system("mkdir " + fil + "out/to_impute_vcf")
+
+	for i in range(1, 24):
+		os.system("plink --bfile " + fil + "out/step10/step10_1/step8_4-updated-chr" + str(i) + " --recode vcf --out " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
+		os.system("gzip " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
+
+
+
+	os.system("mkdir " + fil + "out/HRC")	
+	os.system("mv step8_4* " + fil + "out/HRC/")
+	os.system("mv Chromosome* " + fil + "out/HRC/")
+	os.system("mv Exclude* " + fil + "out/HRC/")
+	os.system("mv Force* " + fil + "out/HRC/")
+	os.system("mv Freq* " + fil + "out/HRC/")
+	os.system("mv ID-* " + fil + "out/HRC/")
+	os.system("mv LOG* " + fil + "out/HRC/")
+	os.system("mv Position* " + fil + "out/HRC/")
+	os.system("mv Run-* " + fil + "out/HRC/")
+	os.system("mv Strand* " + fil + "out/HRC/")
+	os.system("mv to_* " + fil + "out/HRC/")
+
+
 	
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  #creates the parser list for argparse
 parser.add_argument('fil', help="Enter file name for QC, without extentions")
 parser.add_argument('hap', help="Enter file name for hapmapdata, with extentions")
 parser.add_argument('merge', help="Enter file name for bmerg for PCA QC, without extentions")
+parser.add_argument('ref', help="Enter file name for HRC refrenece data")
 parser.add_argument('ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
 parser.add_argument('sdn', action = 'store', nargs = '?',type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check") #testing argument
 args = parser.parse_args()          #creates the list of aruments called args
@@ -549,6 +655,7 @@ args = parser.parse_args()          #creates the list of aruments called args
 fil = args.fil
 hap = args.hap
 merge = args.merge
+ref = args.ref
 ibd = args.ibd
 sdn = args.sdn
 
