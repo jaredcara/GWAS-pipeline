@@ -6,7 +6,7 @@ Hapmapdata and bmerge data for the test data for hg19 is hosted on our github
 
 
 To run the program, enter "python gwas-pipelineQC.py file_name pop_data_for_PCA_plots bmerge_data HRC_reference"  
-Example: 
+Example: python gwas-pipelineQC.py testdata pop_HM3_hg19_forPCA.txt HM3_ASN_CEU_YRI_Unrelated_hg19_noAmbig  HRC.r1-1.GRCh37.wgs.mac5.sites.vcf
 
 
 When entering the file name and bmerge data, extentions should not be entered
