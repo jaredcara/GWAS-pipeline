@@ -1,9 +1,14 @@
 # GWAS-pipeline  
 GWAS pipeline requires .bed, .bim, and .fam input files.  
 To complete PCA analysis, hapmapdata and bmerge data(bed, bim, and fam) will be required  
-The bmerge data for hg19 is hosted on our github  
+For final imputation, HRC-1000G-check-bim.pl (http://www.well.ox.ac.uk/~wrayner/tools/) is requred, additionally for this tool to be fully functional, the unzipped tab delimited HRC reference is required (http://www.haplotype-reference-consortium.org/site).      
+Hapmapdata and bmerge data for the test data for hg19 is hosted on our github  
 
-To run the program, enter "python gwas-pipelineQC.py file_name pop_data_for_PCA_plots bmerge_data"  
+
+To run the program, enter "python gwas-pipelineQC.py file_name pop_data_for_PCA_plots bmerge_data HRC_reference"  
+Example: 
+
+
 When entering the file name and bmerge data, extentions should not be entered
 The file containing the pop data for PCA plots should be similar to the .fam input file.
 Except in row 1 you should include the population data, also data should be tab delimited.
