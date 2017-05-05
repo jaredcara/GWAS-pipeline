@@ -84,7 +84,7 @@ def HETplot(out, name, var):
 
 	
 #to be used after step8_6	
-def PCAplot(name):
+def PCAplot(name, out):
 	r = open(fil + name + ".evec", 'r') #open the evec file
 	e = r.readline() #read the first line where all the eigen values are stored
 	r.close() #close the file
@@ -122,7 +122,7 @@ def PCAplot(name):
 	plt.ylabel("PC2") #adds ylabel
 	plt.title("PCA Plot 1 (PC1 vs PC2)") #addes title
 	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1) #adds the legend
-	plt.savefig(fil + "out/histograms/PCA1.png", bbox_inches = 'tight', format = 'png', dpi = 900) #saves the figure
+	plt.savefig(fil + "out/histograms/" + out + "_PCA1.png", bbox_inches = 'tight', format = 'png', dpi = 900) #saves the figure
 
 	plt.figure() #this code is the same as above except with different columns used to create the graph
 	for row in PCA.itertuples():
@@ -138,7 +138,7 @@ def PCAplot(name):
 	plt.ylabel("PC3")
 	plt.title("PCA Plot 2 (PC1 vs PC3)")
 	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
-	plt.savefig(fil + "out/histograms/PCA2.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
+	plt.savefig(fil + "out/histograms/" + out + "_PCA2.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
 
 	plt.figure() #this code is the same as above except with different columns used to create the graph
 	for row in PCA.itertuples():
@@ -154,7 +154,7 @@ def PCAplot(name):
 	plt.ylabel("PC3")
 	plt.title("PCA Plot 3 (PC2 vs PC3)")
 	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
-	plt.savefig(fil + "out/histograms/PCA3.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
+	plt.savefig(fil + "out/histograms/" + out + "_PCA3.png", bbox_inches = 'tight', format = 'png', dpi = 900) 
 
 	xvals = []
 	yvals = []
@@ -183,7 +183,7 @@ def PCAplot(name):
 	plt.ylabel("PC2")
 	plt.title("PCA Plot 1 (PC1 vs PC2) with lines")
 	plt.legend((A, C, Y, G), ("ASN", "CEU", "YRI", "GWAS"), scatterpoints = 1, loc='center left', bbox_to_anchor=(1, 0.5), ncol = 1)
-	plt.savefig(fil + "out/histograms/PCA1Lines.png", bbox_inches = 'tight', format = 'png', dpi = 900)
+	plt.savefig(fil + "out/histograms/" + out + "_PCA1Lines.png", bbox_inches = 'tight', format = 'png', dpi = 900)
 		
 	
 ### Step1: Sex Check ###
@@ -445,10 +445,10 @@ def step8(fil):
 
    	os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
     
-    	PCAplot("out/step8/step8_4/step8_4")
+    	PCAplot("out/step8/step8_4/step8_4", "With_Map")
 	
 	###Use code below instead if merge is unsuccessful### 
-	'''
+	"""
 	#Remove duplicates from filtered HAPMAP file
 	os.system("plink --bfile " + fil + "out/step8/step8_1/step8_1_HAPMAP --remove " + fil + "out/step8/step8_2/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3_HAPMAP")
 	
@@ -487,21 +487,21 @@ def step8(fil):
 
 	os.system("smartpca -p " + fil + "out/step8/step8_5/step8_5.par")
 	
-	PCAplot("out/step8/step8_5/step8_5") '''
+	PCAplot("out/step8/step8_5/step8_5") """
 	### ###
 	
 	
 ### Step 9: Rerun PCA without MAPMAP ###
 def step9(fil):
 	os.system("mkdir " + fil + "out/step9")
-	os.system("mkdir " + fil + "out/step9/9_0")
-	os.system("mkdir " + fil + "out/step9/9_1")
+	os.system("mkdir " + fil + "out/step9/step9_0")
+	os.system("mkdir " + fil + "out/step9/step9_1")
 	
 	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step9/step9_0/step9_0")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 	
-	os.system("plink --bfile " + fil + "out/step8/step9_0/step9_0 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step9/step9_1/step9_1")
+	os.system("plink --bfile " + fil + "out/step9/step9_0/step9_0 --indep-pairwise 50 5 0.3 --recode --out " + fil + "out/step9/step9_1/step9_1")
 	#makes .map and .ped files for smartpca
 	#makes ..step8e.prune.in and prune.out files 
 
@@ -513,7 +513,7 @@ def step9(fil):
 	o = open(str(fil) + "out/step9/step9_1/step9_1.par", 'w')
 	o.write("genotypename: " + str(fil) + "out/step9/step9_1/step9_1.ped\n")
 	o.write("snpname: " + str(fil) + "out/step9/step9_1/step9_1.map\n")
-	o.write("indivname: " + str(fil) + "out/ste9/step9_1/step9_1.fam\n")
+	o.write("indivname: " + str(fil) + "out/step9/step9_1/step9_1.fam\n")
 	o.write("evecoutname: " + str(fil) + "out/step9/step9_1/step9_1.evec\n")
 	o.write("evaloutname: " +  str(fil) + "out/step9/step9_1/step9_1.eval\n")
 	o.write("outliername: " +  str(fil) + "out/step9/step9_1/step9_1.outlier\n")
@@ -526,7 +526,8 @@ def step9(fil):
 
 	os.system("smartpca -p " + fil + "out/step9/step9_1/step9_1.par")
 	
-	PCAplot("out/step9/step9_1/step9_1")
+	PCAplot("out/step9/step9_1/step9_1", "No_Map")
+
 
 def step10(fil):
 	os.system("mkdir " + fil + "out/step10")
