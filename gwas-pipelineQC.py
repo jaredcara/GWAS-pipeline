@@ -108,7 +108,7 @@ def PCAplot(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
-	del e, hapmapinfo, fam, popinfo, evac #reduce memory usage
+	del e, hapmapinfo, fam, popinfo, evec #reduce memory usage
 	plt.figure() #creates a new figure
 	for row in PCA.itertuples(): #plots the data by the family it is from
 		if row[14] == "ASN": #Plots the ASN and makes their points red
@@ -212,7 +212,7 @@ def PCAplot2(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
-	del e, hapmapinfo, fam, popinfo, evac #helps reduce memory usage
+	del e, hapmapinfo, fam, popinfo, evec #helps reduce memory usage
 	plt.figure() #creates a new figure
 	plt.scatter(PCA["PC1"], PCA["PC2"], alpha = .5, s = 20)
 	plt.xlabel("PC1") #adds xlabel
@@ -491,7 +491,7 @@ def step8(fil):
 		w.write('\n')
 	w.close()
 	
-	 os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --remove " + fil + "out/step7/step7_1/NAIID.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --remove " + fil + "out/step7/step7_1/NAIID.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
      	#merge again without duplicates and NA IIDs
  
     	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
