@@ -72,4 +72,4 @@ Step9_0: Filter SNPs by genotypes greater than 90%
 Step9_1: .map and .ped files for pca  
 --Step10: ---  
 Step10_0: frequency file for HRC  
-Step10:1: 
+Step10:1: Updated-Chromosome bed bim and fam from HRC
