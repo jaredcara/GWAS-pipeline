@@ -279,7 +279,7 @@ def step2(fil):
 	#writes data to step2/step2_0/step2_0
 
 	os.system("mkdir " + fil + "out/step2/step2_0")
-	os.system("plink --bfile " + fil + " --remove " + fil + "out/step1/exclude.txt --geno 0.01 --make-bed --out " + fil + "out/step2/step2_0/step2_0")
+	os.system("plink --bfile " + fil + " --remove " + fil + "out/step1/exclude.txt --geno " + str(SNP_callrate) + " --make-bed --out " + fil + "out/step2/step2_0/step2_0")
 
 	##Creates two files: .imiss (individual) and .lmiss (SNP/locus) that details missingness in data
 	#writes data to step2/step2_2/step2_2
@@ -303,7 +303,7 @@ def step3(fil):
 	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --missing --out " + fil + "out/step3/step3_1/step3_1")
 	#person call rate with standard 0.1 threshold
 	#write output to step3/step3
-	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind 0.1 --make-bed --out " + fil + "out/step3/step3_0/step3_0")
+	os.system("plink --bfile " + fil + "out/step2/step2_0/step2_0 --mind " + str(person_callrate) + " --make-bed --out " + fil + "out/step3/step3_0/step3_0")
 	os.system("plink --bfile " + fil + "out/step3/step3_0/step3_0 --missing --out " + fil + "out/step3/step3_2/step3_2")
 	
 	plot("step3_1-imiss", "out/step3/step3_1/step3_1", ".imiss", "F_MISS")	
@@ -390,6 +390,7 @@ def step7(fil):
 	os.system("mkdir " + fil + "out/step7")
 	os.system("mkdir " + fil + "out/step7/step7_0")
 	os.system("mkdir " + fil + "out/step7/step7_1")
+	os.system("mkdir " + fil + "out/final")
 
 	#Heterzygosity check of file after extracting individuals with relatedness above the theshold 
 	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --het --out " + fil + "out/step7/step7_0/step7_0")
@@ -408,6 +409,7 @@ def step7(fil):
 	
 	#filter any outliers from plot, mean sd +/-3
 	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
+	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/final/" + fil + "final_filtered")
 	#calculates inbreeding coeffecients
 	
 ### Step 8: PCA ###
@@ -465,7 +467,6 @@ def step8(fil):
  	#merge again without duplicates
  
     	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
-	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out to_impute")
     	#keeps SNPs of merged file to genotypes above 90%
     	#out bed, bim, fam files
     
@@ -494,10 +495,6 @@ def step8(fil):
 
    	os.system("smartpca -p " + fil + "out/step8/step8_4/step8_4.par")
 
-	os.system("cp " + fil + "out/step8/step8_4/step8_4.bed to_impute.bed")
-	os.system("cp " + fil + "out/step8/step8_4/step8_4.bim to_impute.bim")
-	os.system("cp " + fil + "out/step8/step8_4/step8_4.bim to_impute.fam")
-	
     	PCAplot("out/step8/step8_4/step8_4", "With_Map")
 	
 	###Use code below instead if merge is unsuccessful### 
@@ -586,9 +583,9 @@ def step9(fil):
 def step10(fil):
 	os.system("mkdir " + fil + "out/step10")
 	os.system("mkdir " + fil + "out/step10/step10_1")
-	os.system("plink --bfile " + fil + "out/step8/step8_4/step8_4 --freq --out " + fil + "out/step10/step10")
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --freq --out " + fil + "out/step10/step10")
 	
-	os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step8/step8_4/step8_4.bim -f " + fil + "out/step10/step10.frq -r " + ref + " -h")
+	os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step7/step7_1/step7_1.bim -f " + fil + "out/step10/step10.frq -r " + ref + " -h")
 	
 	new = open("Run-plink.sh", 'r')
 	line = new.readlines()
@@ -596,7 +593,7 @@ def step10(fil):
 
 	x = line[0]
 	y = x.split(' ')
-	y[2] = fil + "out/step8/step8_4/step8_4"	
+	y[2] = fil + "out/step7/step7_1/step7_1"
 	z = ""
 	for each in y:
 		z = z + ' ' + each
@@ -623,13 +620,13 @@ def step10(fil):
 	os.system("mkdir " + fil + "out/to_impute_vcf")
 
 	for i in range(1, 24):
-		os.system("plink --bfile " + fil + "out/step10/step10_1/step8_4-updated-chr" + str(i) + " --recode vcf --out " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
-		os.system("gzip " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
+		os.system("plink --bfile " + fil + "out/step10/step10_1/step7_1-updated-chr" + str(i) + " --recode vcf --out " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
+		os.system("gzip " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i) + ".vcf")
 
 
 
 	os.system("mkdir " + fil + "out/HRC")	
-	os.system("mv step8_4* " + fil + "out/HRC/")
+	os.system("mv step7_1* " + fil + "out/HRC/")
 	os.system("mv Chromosome* " + fil + "out/HRC/")
 	os.system("mv Exclude* " + fil + "out/HRC/")
 	os.system("mv Force* " + fil + "out/HRC/")
@@ -639,26 +636,27 @@ def step10(fil):
 	os.system("mv Position* " + fil + "out/HRC/")
 	os.system("mv Run-* " + fil + "out/HRC/")
 	os.system("mv Strand* " + fil + "out/HRC/")
-	os.system("mv to_* " + fil + "out/HRC/")
-
 
 	
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  #creates the parser list for argparse
-parser.add_argument('fil', help="Enter file name for QC, without extentions")
-parser.add_argument('hap', help="Enter file name for hapmapdata, with extentions")
-parser.add_argument('merge', help="Enter file name for bmerg for PCA QC, without extentions")
-parser.add_argument('ref', help="Enter file name for HRC refrenece data")
-parser.add_argument('ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
-parser.add_argument('sdn', action = 'store', nargs = '?',type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check") #testing argument
+parser.add_argument('-f', '--fil', help="Enter file name for QC, without extentions")
+parser.add_argument('-o', '--hap', help="Enter file name for hapmapdata, with extentions")
+parser.add_argument('-m', '--mer', help="Enter file name for bmerg for PCA QC, without extentions")
+parser.add_argument('-r', '--ref', help="Enter file name for HRC refrenece data")
+parser.add_argument('-c', '--SNr', action = 'store', nargs = '?', type = float, default = 0.01, help = "Enter genotype ratio for SNP call rate")
+parser.add_argument('-p', '--per', action = 'store', nargs = '?', type = float, default = 0.1, help = "Enter ratio for person call rate")
+parser.add_argument('-i', '--ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
+parser.add_argument('-s', '--sdn', action = 'store', nargs = '?', type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check")
 args = parser.parse_args()          #creates the list of aruments called args
 
 fil = args.fil
 hap = args.hap
-merge = args.merge
+merge = args.mer
 ref = args.ref
+SNP_callrate = args.SNr
+person_callrate = args.per
 ibd = args.ibd
 sdn = args.sdn
-
 
 
 step1(fil)
@@ -674,3 +672,4 @@ step8(fil)
 step9(fil)
 step10(fil)
 res.close()
+
