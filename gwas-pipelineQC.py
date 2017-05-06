@@ -400,40 +400,44 @@ def step7(fil):
 
 	#Plot Het here
 	these = HETplot("step7_0-het.png", "out/step7/step7_0/step7_0.het", "F")
-
+	
 	o = open(fil + "out/step7/step7_0/issues.txt", 'w')
-	for each in these:
-		o.write(each)
-		o.write('\n')
-	
-	o.close()
-	
-	#filter any outliers from plot, mean sd +/-3
-	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
-	
-	#creates file to remove SNPs with NA IID values
-	os.system("grep 'NA' " + fil + "out/step7/step7_1/step7_1.fam > " + fil + "out/step7/step7_1/NAIID.txt")
-	
-	f = open(fil + "out/step7/step7_1/NAIID.txt", 'r')
-	r = f.readlines()
-	f.close()
+    	for each in these:
+        	o.write(each)
+        	o.write('\n')
+    
+    	o.close()
+    
+    	#filter any outliers from plot, mean sd +/-3
+    	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
+    
 
-	#in each line only return the NA IID name`
-	w = open(fil + "out/step7/step7_1/NAIID.txt", 'w')
-	for each in w:
-		IID = each.split() 
-		w.write(IID[1])
-		w.write('\n')
-	w.close()
-	
-	#removes SNPs with NA IID values
-	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out  " + fil + "out/step7/step7_1/step7_1")
-	
-	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/final/" + fil + "final_filtered")
-	#calculates inbreeding coeffecients
-	
-	#removes SNPs with NA IID values
-	os.system("plink --bfile " + fil + "out/final/" + fil + "final_filtered --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out  " + fil + "out/final/" + fil + "final_filtered")
+	#creates file to remove SNPs with NA IID values
+        
+    	f = open(fil + "out/step7/step7_1/step7_1.fam", 'r')
+    	r = f.readlines()
+    	f.close()
+    
+    	#in each line only return the first and second column`
+    	NAIID = []
+    	for each in r:
+        	value = each.split()
+        	if value[1].isdigit() == False:
+            		NAIID.append(value[0]+'\t'+value[1])
+        	else:
+            		continue
+    
+    	w = open(fil + "out/step7/step7_1/NAIID.txt", 'w')
+    	for each in NAIID:
+        	w.write(each)
+        	w.write('\n')
+    	w.close()
+    
+    	#removes SNPs with NA IID values
+    	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out " + fil + "out/step6/step6_1/step6_1-2")
+    
+    	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1-2 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/final/" + fil + "final_filtered")
+    	#calculates inbreeding coeffecients
 	
 	
 ### Step 8: PCA ###
@@ -487,8 +491,8 @@ def step8(fil):
 		w.write('\n')
 	w.close()
 	
-	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --remove " + fil + "out/step7/step7_1/NAIID.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
- 	#merge again without duplicates and NA IIDs
+	 os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --remove " + fil + "out/step7/step7_1/NAIID.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+     	#merge again without duplicates and NA IIDs
  
     	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
     	#keeps SNPs of merged file to genotypes above 90%
@@ -572,7 +576,7 @@ def step9(fil):
 	os.system("mkdir " + fil + "out/step9/step9_0")
 	os.system("mkdir " + fil + "out/step9/step9_1")
 	
-	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step9/step9_0/step9_0")
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --geno 0.1 --maf 0.05 --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out " + fil + "out/step9/step9_0/step9_0")
 	#keeps SNPs of merged file to genotypes above 90%
 	#out bed, bim, fam files
 	
