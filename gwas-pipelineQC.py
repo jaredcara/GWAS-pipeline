@@ -611,14 +611,18 @@ def step9(fil):
 def step10(fil):
 	os.system("mkdir " + fil + "out/step10")
 	os.system("mkdir " + fil + "out/step10/step10_1")
+	#create frequency file
 	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --freq --out " + fil + "out/step10/step10")
 	
+	#pass filtered bim file and frequency file into HRC check
 	os.system("perl HRC-1000G-check-bim.pl -b " + fil + "out/step7/step7_1/step7_1.bim -f " + fil + "out/step10/step10.frq -r " + ref + " -h")
 	
+	#open generate plink commands
 	new = open("Run-plink.sh", 'r')
 	line = new.readlines()
 	new.close()
-
+	
+	#edit so that the file reads the propper locations
 	x = line[0]
 	y = x.split(' ')
 	y[2] = fil + "out/step7/step7_1/step7_1"
@@ -628,6 +632,7 @@ def step10(fil):
 	line[0] = z
 	
 
+	#add step10/step10_1 to each chromosome
 	for i in range(5,len(line)-1):
 		x = line[i]
 		y = x.split(' ')
@@ -637,22 +642,26 @@ def step10(fil):
  			z = z + ' ' + each
 		line[i] = z
 
-
+	#save the updated plink command file
 	new = open(fil + "out/step10/step10_1/Run-plink.sh", 'w')
 	for each in line:
 		new.write(each)
 	new.close()
 	
+	#run the updated plink command file
 	os.system("sh " + fil + "out/step10/step10_1/Run-plink.sh")
 	
+	#make final output folder
 	os.system("mkdir " + fil + "out/to_impute_vcf")
 
+	#generate the .vcf files from each updated chr 
 	for i in range(1, 24):
 		os.system("plink --bfile " + fil + "out/step10/step10_1/step7_1-updated-chr" + str(i) + " --recode vcf --out " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i))
+		#zip files
 		os.system("gzip " + fil + "out/to_impute_vcf/to_impute-updated-chr" + str(i) + ".vcf")
 
 
-
+	#clean up working directory
 	os.system("mkdir " + fil + "out/HRC")	
 	os.system("mv step7_1* " + fil + "out/HRC/")
 	os.system("mv Chromosome* " + fil + "out/HRC/")
