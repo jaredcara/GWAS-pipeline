@@ -68,9 +68,8 @@ Step8_2: merged genotypes
 Step8_3: filtered SNPs for pca  
 Step8_4: .map and .ped files for pca  
 ---Step9: ---  
-Step9_0:
-Step9_1:
-step9_2:
+Step9_0:  Filter SNPs by genotypes greater than 90%
+Step9_1:  .map and .ped files for pca
 --Step10: ---  
-Step10_0:
-Step10:1:
+Step10_0:  frequency file for HRC
+Step10:1:  
