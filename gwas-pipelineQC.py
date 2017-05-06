@@ -108,6 +108,7 @@ def PCAplot(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+	del e, hapmapinfo, fam, popinfo, evac #reduce memory usage
 	plt.figure() #creates a new figure
 	for row in PCA.itertuples(): #plots the data by the family it is from
 		if row[14] == "ASN": #Plots the ASN and makes their points red
@@ -211,6 +212,7 @@ def PCAplot2(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+	del e, hapmapinfo, fam, popinfo, evac #helps reduce memory usage
 	plt.figure() #creates a new figure
 	plt.scatter(PCA["PC1"], PCA["PC2"], alpha = .5, s = 20)
 	plt.xlabel("PC1") #adds xlabel
