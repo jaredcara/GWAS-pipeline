@@ -67,7 +67,10 @@ Step8_1: filters SNPs that are missing
 Step8_2: merged genotypes  
 Step8_3: filtered SNPs for pca  
 Step8_4: .map and .ped files for pca  
----Step9: ---
-Step
---Step10: ---
-Step10_
+---Step9: ---  
+Step9_0:
+Step9_1:
+step9_2:
+--Step10: ---  
+Step10_0:
+Step10:1:
