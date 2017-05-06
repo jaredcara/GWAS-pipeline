@@ -108,6 +108,9 @@ def PCAplot(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+
+	del e, hapmapinfo, fam, popinfo, evec #delete all unneeded data structures
+
 	plt.figure() #creates a new figure
 	for row in PCA.itertuples(): #plots the data by the family it is from
 		if row[14] == "ASN": #Plots the ASN and makes their points red
@@ -211,6 +214,9 @@ def PCAplot2(name, out):
 		i += 1
 	evec.columns = ['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8', 'PC9', 'PC10', 'CONTROL'] #renames the columns
 	PCA = evec.join(popinfo.set_index('IID'), on = 'IID') #merges everything by IID and the order for index is as follows (starting at index 1): IID PC1 PC2 PC3 PC4 PC5 PC6 PC7 PC8 PC9 PC10 CONTROL FID POP
+	
+	del e, hapmapinfo, fam, popinfo, evec #delete all unneeded data structures
+
 	plt.figure() #creates a new figure
 	plt.scatter(PCA["PC1"], PCA["PC2"], alpha = .5, s = 20)
 	plt.xlabel("PC1") #adds xlabel
@@ -644,23 +650,27 @@ def step10(fil):
 
 	
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  #creates the parser list for argparse
-parser.add_argument('fil', help="Enter file name for QC, without extentions")
-parser.add_argument('hap', help="Enter file name for hapmapdata, with extentions")
-parser.add_argument('merge', help="Enter file name for bmerg for PCA QC, without extentions")
-parser.add_argument('ref', help="Enter file name for HRC refrenece data")
-parser.add_argument('ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
-parser.add_argument('sdn', action = 'store', nargs = '?',type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check") #testing argument
+parser.add_argument('-f', '--fil', help="Enter file name for QC, without extentions")
+parser.add_argument('-o', '--hap', help="Enter file name for hapmapdata, with extentions")
+parser.add_argument('-m', '--mer', help="Enter file name for bmerg for PCA QC, without extentions")
+parser.add_argument('-r', '--ref', help="Enter file name for HRC refrenece data")
+parser.add_argument('-c', '--SNr', action = 'store', nargs = '?', type = float, default = 0.01, help = "Enter genotype ratio for SNP call rate")
+parser.add_argument('-p', '--per', action = 'store', nargs = '?', type = float, default = 0.1, help = "Enter genotype ratio for person call rate")
+parser.add_argument('-i', '--ibd', action = 'store', nargs = '?', type = float, default = 0.125, help = "Enter value of minimum relatedness for IBD check")
+parser.add_argument('-s', '--sdn', action = 'store', nargs = '?', type = int, default = 6, help = "Enter the cut off of standard deviations for heterozygosity check")
 args = parser.parse_args()          #creates the list of aruments called args
 
 fil = args.fil
 hap = args.hap
-merge = args.merge
+merge = args.mer
 ref = args.ref
+SNP_callrate = args.SNr
+person_callrate = args.per
 ibd = args.ibd
 sdn = args.sdn
 
 
-
+"""
 step1(fil)
 os.system("mkdir " + fil + "out/histograms")
 res = open(fil + "out/histograms/statistics.txt", 'w')
@@ -674,3 +684,4 @@ step8(fil)
 step9(fil)
 step10(fil)
 res.close()
+"""
