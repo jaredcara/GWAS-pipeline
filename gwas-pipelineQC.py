@@ -408,6 +408,9 @@ def step7(fil):
 	
 	o.close()
 	
+	#filter any outliers from plot, mean sd +/-3
+	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
+	
 	#creates file to remove SNPs with NA IID values
 	os.system("grep 'NA' " + fil + "out/step7/step7_1/step7_1.fam > " + fil + "out/step7/step7_1/NAIID.txt")
 	
@@ -422,10 +425,6 @@ def step7(fil):
 		w.write(IID[1])
 		w.write('\n')
 	w.close()
-	
-
-	#filter any outliers from plot, mean sd +/-3
-	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
 	
 	#removes SNPs with NA IID values
 	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out  " + fil + "out/step7/step7_1/step7_1")
