@@ -448,7 +448,7 @@ def step8(fil):
 
 	
 	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + merge + ".bed " + merge + ".bim " + merge + ".fam --make-bed --out " + fil + "out/step8/step8_0/step8_0")
-	#merge QC bfile from previous step 5f with hg19 bed, bim, fam files
+	#merge QC bfile from previous step with hg19 bed, bim, fam files
 	#makes -merge.missnp file
 
 	
@@ -472,7 +472,7 @@ def step8(fil):
 	
 	
 	#in each line only return the duplicate SNP name`
-	#remove both or just one?
+	#remove both
 	duplicates = []
 	for each in r:
 		each = each.replace("'", "")
@@ -487,8 +487,8 @@ def step8(fil):
 		w.write('\n')
 	w.close()
 	
-	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
- 	#merge again without duplicates
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --bmerge " + fil + "out/step8/step8_1/step8_1_HAPMAP.bed " + fil + "out/step8/step8_1/step8_1_HAPMAP.bim " + fil + "out/step8/step8_1/step8_1_HAPMAP.fam --exclude " + fil + "out/step8/step8_2/duplicateSNPs.txt --remove " + fil + "out/step7/step7_1/NAIID.txt --geno 0.1 --make-bed --out " + fil + "out/step8/step8_3/step8_3")
+ 	#merge again without duplicates and NA IIDs
  
     	os.system("plink --bfile " + fil + "out/step8/step8_3/step8_3 --geno 0.1 --maf 0.05 --make-bed --out " + fil + "out/step8/step8_4/step8_4")
     	#keeps SNPs of merged file to genotypes above 90%
