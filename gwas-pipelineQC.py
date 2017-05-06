@@ -409,7 +409,7 @@ def step7(fil):
 	o.close()
 	
 	#creates file to remove SNPs with NA IID values
-	os.system("grep 'NA' " + fil + "out/step7/step7_1/step7_1.log > " + fil + "out/step7/step7_1/NAIID.txt")
+	os.system("grep 'NA' " + fil + "out/step7/step7_1/step7_1.fam > " + fil + "out/step7/step7_1/NAIID.txt")
 	
 	f = open(fil + "out/step7/step7_1/NAIID.txt", 'r')
 	r = f.readlines()
