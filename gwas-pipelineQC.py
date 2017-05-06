@@ -406,11 +406,34 @@ def step7(fil):
 	
 	o.close()
 	
+	#creates file to remove SNPs with NA IID values
+	os.system("grep 'NA' " + fil + "out/step7/step7_1/step7_1.log > " + fil + "out/step7/step7_1/NAIID.txt")
 	
+	f = open(fil + "out/step7/step7_1/NAIID.txt", 'r')
+	r = f.readlines()
+	f.close()
+
+	#in each line only return the NA IID name`
+	w = open(fil + "out/step7/step7_1/NAIID.txt", 'w')
+	for each in w:
+		IID = each.split() 
+		w.write(IID[1])
+		w.write('\n')
+	w.close()
+	
+
 	#filter any outliers from plot, mean sd +/-3
 	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/step7/step7_1/step7_1")
+	
+	#removes SNPs with NA IID values
+	os.system("plink --bfile " + fil + "out/step7/step7_1/step7_1 --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out  " + fil + "out/step7/step7_1/step7_1")
+	
 	os.system("plink --bfile " + fil + "out/step6/step6_1/step6_1 --remove " + fil + "out/step7/step7_0/issues.txt --make-bed --out " + fil + "out/final/" + fil + "final_filtered")
 	#calculates inbreeding coeffecients
+	
+	#removes SNPs with NA IID values
+	os.system("plink --bfile " + fil + "out/final/" + fil + "final_filtered --remove " + fil + "out/step7/step7_1/NAIID.txt --make-bed --out  " + fil + "out/final/" + fil + "final_filtered")
+	
 	
 ### Step 8: PCA ###
 def step8(fil):
