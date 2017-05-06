@@ -2,7 +2,7 @@
 GWAS pipeline requires .bed, .bim, and .fam input files.  
 To complete PCA analysis, hapmapdata and bmerge data(bed, bim, and fam) will be required  
 For final imputation, HRC-1000G-check-bim.pl (http://www.well.ox.ac.uk/~wrayner/tools/) is requred,additionally for this tool to be fully functional, the unzipped tab delimited HRC reference is required (http://www.haplotype-reference-consortium.org/site).  
-Hapmapdata and bmerge data for the test data for hg19 is hosted on our github  
+Hapmapdata and bmerge data for the test data for hg19 is hosted on our github, all of these files should be unzipped using gzip  
 
 Intallation of PLINK (https://www.cog-genomics.org/plink2/) is required.   
 Python modules used in pipleine: pandas, matplotlib, os, sys, numpy, Pandas, matplotlib, and numpy must be installed on your system.  
